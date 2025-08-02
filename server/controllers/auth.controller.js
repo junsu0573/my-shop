@@ -31,6 +31,24 @@ authController.loginUser = async (req, res) => {
     res.status(500).json({
       status: "error",
       message: "서버 오류입니다.",
+      error: error.message,
+    });
+  }
+};
+
+// 로그인 유저 정보 찾기
+authController.getCurrentUser = async (req, res) => {
+  try {
+    const user = await User.findById(req.user._id);
+    res.status(200).json({
+      status: "success",
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "서버 오류입니다.",
+      error: error.message,
     });
   }
 };
