@@ -10,19 +10,10 @@ import { useToast } from "../../shared/ui/ToastContext";
 function RegisterForm() {
   const dispatch = useDispatch<AppDispatch>();
   const { status, error } = useSelector((state: RootState) => state.auth);
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const isLoading = status === "loading";
   const { addToast } = useToast();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    if (status === "succeeded") {
-      addToast("회원가입이 완료되었습니다.", "success");
-      dispatch(logout());
-      navigate("/login");
-    }
-  }, [status, addToast]);
-
-  // 폼 데이터
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -33,12 +24,14 @@ function RegisterForm() {
     detailAddress: "",
   });
 
-  const [errors, setErrors] = useState<{ [key: string]: string }>({});
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-  };
+  // 회원가입 성공 시 알림 및 리다이렉트
+  useEffect(() => {
+    if (status === "succeeded") {
+      addToast("회원가입이 완료되었습니다.", "success");
+      dispatch(logout());
+      navigate("/login");
+    }
+  }, [status, addToast]);
 
   // 유효성 검사
   const validateForm = () => {
@@ -59,7 +52,13 @@ function RegisterForm() {
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+  // onChange 핸들러
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
 
+  // onSubmit 핸들러
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
