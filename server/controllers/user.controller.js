@@ -36,7 +36,7 @@ userController.createUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({
       status: "error",
-      message: "회원가입 실패",
+      message: "서버 오류입니다.",
       error: error.message,
     });
   }
