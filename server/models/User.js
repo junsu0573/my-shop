@@ -37,6 +37,9 @@ const userSchema = new mongoose.Schema(
 // 비밀번호를 제외한 유저 정보 반환
 userSchema.methods.toJSON = function () {
   const obj = this._doc;
+  delete obj.__v;
+  delete obj.createdAt;
+  delete obj.updatedAt;
   delete obj.password;
   return obj;
 };
