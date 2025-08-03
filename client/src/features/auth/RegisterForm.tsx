@@ -4,7 +4,7 @@ import Input from "../../shared/ui/input";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { clearError, logout, register } from "./authSlice";
+import { clearError, register } from "./authSlice";
 import { useToast } from "../../shared/ui/ToastContext";
 
 function RegisterForm() {
