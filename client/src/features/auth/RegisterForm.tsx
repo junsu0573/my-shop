@@ -4,7 +4,7 @@ import Input from "../../shared/ui/input";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect, useState } from "react";
-import { logout, register } from "./authSlice";
+import { clearError, logout, register } from "./authSlice";
 import { useToast } from "../../shared/ui/ToastContext";
 
 function RegisterForm() {
@@ -26,9 +26,10 @@ function RegisterForm() {
 
   // 회원가입 성공 시 알림 및 리다이렉트
   useEffect(() => {
+    dispatch(clearError());
     if (status === "succeeded") {
       addToast("회원가입이 완료되었습니다.", "success");
-      dispatch(logout());
+      dispatch(clearError());
       navigate("/login");
     }
   }, [status, addToast]);
