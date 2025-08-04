@@ -25,11 +25,13 @@ function HomePage() {
       <main>
         <HeroSection />
         <div className="w-full flex justify-center">
-          <Button
-            title="Logout"
-            className="w-auto px-4"
-            onClick={clickHandler}
-          />
+          {user && (
+            <Button
+              title="Logout"
+              className="w-auto px-4"
+              onClick={clickHandler}
+            />
+          )}
         </div>
       </main>
     </div>
