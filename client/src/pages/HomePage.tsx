@@ -4,6 +4,8 @@ import { useEffect } from "react";
 import Button from "../shared/ui/button";
 import { logout } from "../features/auth/authSlice";
 import { useNavigate } from "react-router-dom";
+import Header from "../widgets/Header";
+import HeroSection from "../widgets/HeroSection";
 
 function HomePage() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -13,7 +15,6 @@ function HomePage() {
   // 로그아웃 핸들러
   const clickHandler = () => {
     dispatch(logout());
-    navigate("/login");
   };
 
   useEffect(() => {
@@ -21,13 +22,18 @@ function HomePage() {
   }, [user]);
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
-      <h1>Welcome to the Home Page</h1>
-      <Button
-        title="Logout"
-        className="w-auto px-4"
-        onClick={clickHandler}
-      ></Button>
+    <div className="w-full h-full">
+      <Header />
+      <main>
+        <HeroSection />
+        <div className="w-full flex justify-center">
+          <Button
+            title="Logout"
+            className="w-auto px-4"
+            onClick={clickHandler}
+          />
+        </div>
+      </main>
     </div>
   );
 }

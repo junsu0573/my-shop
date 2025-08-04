@@ -1,19 +1,39 @@
+import type { ReactNode } from "react";
 import { cn } from "./utils";
+
+interface ButtonProps extends React.ComponentProps<"button"> {
+  variant?: "default" | "ghost" | "outline";
+  title?: string;
+  icon?: ReactNode;
+}
 
 function Button({
   className,
+  variant = "default",
   title,
+  icon,
   ...props
-}: React.ComponentProps<"button">) {
+}: ButtonProps) {
+  const variantClass = {
+    default: "bg-primary text-secondary hover:bg-primary/90",
+    ghost: "bg-transparent hover:bg-accent text-foreground",
+    outline: "bg-background hover:bg-accent border border-border",
+  };
   return (
     <button
       className={cn(
-        "w-full py-2 rounded-md bg-primary text-secondary disabled:bg-button-disabled disabled:cursor-not-allowed",
+        "flex items-center justify-center py-2 px-2 rounded-md disabled:bg-button-disabled disabled:cursor-not-allowed transition-colors",
+        variantClass[variant],
         className
       )}
       {...props}
     >
-      {title}
+      {icon && icon}
+      {icon && title ? (
+        <span className="ml-2">{title}</span>
+      ) : (
+        title && <span>{title}</span>
+      )}
     </button>
   );
 }

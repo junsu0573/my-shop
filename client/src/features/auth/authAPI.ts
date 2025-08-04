@@ -58,5 +58,5 @@ export const fetchUser = async (): Promise<UserResponse> => {
       Authorization: token,
     },
   });
-  return response.data;
+  return response.data.user;
 };
