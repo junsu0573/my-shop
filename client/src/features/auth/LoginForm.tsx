@@ -3,7 +3,7 @@ import Button from "../../shared/ui/button";
 import Input from "../../shared/ui/input";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, clearError } from "./authSlice";
+import { login, resetAuth } from "./authSlice";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useToast } from "../../shared/ui/ToastContext";
 
@@ -16,14 +16,19 @@ function LoginForm() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({ email: "", password: "" });
 
+  // 에러 초기화
+  useEffect(() => {
+    dispatch(resetAuth());
+  }, []);
+
   // 로그인 성공 시 알림 및 리다이렉트
   useEffect(() => {
-    dispatch(clearError());
     if (status === "succeeded") {
       addToast("로그인에 성공했습니다.", "success");
+      dispatch(resetAuth());
       navigate("/");
     }
-  }, [status, addToast]);
+  }, [status, addToast, navigate]);
 
   // 유효성 검사
   const validateForm = () => {

@@ -84,7 +84,8 @@ const authSlice = createSlice({
       state.status = "idle";
       state.error = null;
     },
-    clearError: (state) => {
+    resetAuth: (state) => {
+      state.status = "idle";
       state.error = null;
     },
   },
@@ -95,8 +96,7 @@ const authSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(register.fulfilled, (state, action) => {
-        state.user = action.payload;
+      .addCase(register.fulfilled, (state) => {
         state.status = "succeeded";
         state.error = null;
       })
@@ -129,5 +129,5 @@ const authSlice = createSlice({
   },
 });
 
-export const { logout, clearError } = authSlice.actions;
+export const { logout, resetAuth } = authSlice.actions;
 export default authSlice.reducer;
