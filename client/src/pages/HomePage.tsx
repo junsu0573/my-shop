@@ -10,7 +10,6 @@ import HeroSection from "../widgets/HeroSection";
 function HomePage() {
   const { user } = useSelector((state: RootState) => state.auth);
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
 
   // 로그아웃 핸들러
   const clickHandler = () => {

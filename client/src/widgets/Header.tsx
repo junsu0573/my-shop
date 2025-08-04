@@ -2,21 +2,15 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../shared/ui/input";
 import Button from "../shared/ui/button";
 import { User, ShoppingCart, Menu } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../app/store";
-import { logout } from "../features/auth/authSlice";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/store";
 
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
   console.log("Here", user);
   const handleLogin = () => {
     navigate("/login");
-  };
-
-  const handleLogout = () => {
-    dispatch(logout());
   };
 
   return (
