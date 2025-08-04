@@ -1,11 +1,11 @@
 const express = require("express");
 const router = express.Router();
-const verifyToken = require("../middlewares/auth");
-
+const authMiddleware = require("../middlewares/auth.middleware");
 const authController = require("../controllers/auth.controller");
 
 // 로그인
 router.post("/login", authController.loginUser);
-router.get("/me", verifyToken, authController.getCurrentUser);
+// 토큰 검증
+router.get("/me", authMiddleware.verifyToken, authController.getCurrentUser);
 
 module.exports = router;

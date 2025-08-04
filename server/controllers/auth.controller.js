@@ -22,13 +22,13 @@ authController.loginUser = async (req, res) => {
         .json({ status: "error", message: "비밀번호가 일치하지 않습니다." });
     // JWT 생성
     const token = await user.generateAuthToken();
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       user,
       token,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: "서버 오류입니다.",
       error: error.message,
@@ -40,12 +40,12 @@ authController.loginUser = async (req, res) => {
 authController.getCurrentUser = async (req, res) => {
   try {
     const user = await User.findById(req.user._id);
-    res.status(200).json({
+    return res.status(200).json({
       status: "success",
       user,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: "서버 오류입니다.",
       error: error.message,

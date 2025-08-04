@@ -8,7 +8,6 @@ import type { RootState } from "../app/store";
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
-  console.log("Here", user);
   const handleLogin = () => {
     navigate("/login");
   };
@@ -22,7 +21,7 @@ function Header() {
           {/* 네비게이션 메뉴 */}
           <nav className="hidden md:flex items-center space-x-8">
             <Link
-              to="#"
+              to="/"
               className="text-foreground hover:text-primary transition-colors"
             >
               홈

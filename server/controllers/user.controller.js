@@ -28,13 +28,13 @@ userController.createUser = async (req, res) => {
       address,
       role: "user",
     });
-    res.status(201).json({
+    return res.status(201).json({
       status: "success",
       message: "회원가입 성공",
       user,
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: "서버 오류입니다.",
       error: error.message,

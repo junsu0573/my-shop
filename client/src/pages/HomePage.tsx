@@ -1,10 +1,10 @@
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../app/store";
-import { useEffect } from "react";
 import Button from "../shared/ui/button";
 import { logout } from "../features/auth/authSlice";
 import Header from "../widgets/Header";
 import HeroSection from "../widgets/HeroSection";
+import PopularProductsSection from "../widgets/PopularProductsSection";
 
 function HomePage() {
   const { user } = useSelector((state: RootState) => state.auth);
@@ -15,25 +15,22 @@ function HomePage() {
     dispatch(logout());
   };
 
-  useEffect(() => {
-    console.log(user);
-  }, [user]);
-
   return (
-    <div className="w-full h-full">
+    <div className="w-full min-h-screen bg-background">
       <Header />
       <main>
         <HeroSection />
-        <div className="w-full flex justify-center">
-          {user && (
-            <Button
-              title="Logout"
-              className="w-auto px-4"
-              onClick={clickHandler}
-            />
-          )}
-        </div>
+        <PopularProductsSection />
       </main>
+      <div className="w-full flex justify-center">
+        {user && (
+          <Button
+            title="Logout"
+            className="w-auto px-4"
+            onClick={clickHandler}
+          />
+        )}
+      </div>
     </div>
   );
 }
