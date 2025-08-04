@@ -3,7 +3,6 @@ import type { AppDispatch, RootState } from "../app/store";
 import { useEffect } from "react";
 import Button from "../shared/ui/button";
 import { logout } from "../features/auth/authSlice";
-import { useNavigate } from "react-router-dom";
 import Header from "../widgets/Header";
 import HeroSection from "../widgets/HeroSection";
 
