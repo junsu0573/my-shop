@@ -64,7 +64,9 @@ function LoginForm() {
         placeholder={placeholder}
         name={name}
         onChange={handleChange}
-        className={errors[name] ? "border-alert-error" : "border-transparent"}
+        className={`bg-input-background ${
+          errors[name] ? "border-alert-error" : "border-transparent"
+        }`}
       />
       {errors[name] && (
         <span className="text-alert-error text-sm">{errors[name]}</span>

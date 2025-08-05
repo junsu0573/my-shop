@@ -3,6 +3,9 @@ import LoginPage from "../pages/LoginPage";
 import RegisterPage from "../pages/RegisterPage";
 import HomePage from "../pages/HomePage";
 import PublicRoute from "../shared/routes/PublicRoute";
+import PrivateRoute from "../shared/routes/PrivateRoute";
+import AdminLayout from "../pages/AdminLayout";
+import ProductManagement from "../features/product/ProductManagement";
 
 function AppRouter() {
   return (
@@ -24,6 +27,19 @@ function AppRouter() {
           </PublicRoute>
         }
       />
+      <Route
+        path="/admin"
+        element={
+          <PrivateRoute>
+            <AdminLayout />
+          </PrivateRoute>
+        }
+      >
+        <Route path="users" />
+        <Route path="products" element={<ProductManagement />} />
+        <Route path="orders" />
+        <Route />
+      </Route>
     </Routes>
   );
 }

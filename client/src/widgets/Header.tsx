@@ -8,7 +8,10 @@ import type { RootState } from "../app/store";
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
   const navigate = useNavigate();
-  const handleLogin = () => {
+  const linkToAdminPage = () => {
+    navigate("/admin");
+  };
+  const linkToLoginPage = () => {
     navigate("/login");
   };
 
@@ -61,23 +64,27 @@ function Header() {
 
           {/* 우측 메뉴 */}
           <div className="flex items-center space-x-2">
+            {user?.role === "admin" && (
+              <Button
+                variant="ghost"
+                title="관리자페이지"
+                onClick={linkToAdminPage}
+              />
+            )}
             {user ? (
               <Button variant="ghost" title={user.email} />
             ) : (
               <Button
                 variant="ghost"
                 title="로그인"
-                icon={<User className="w-4 h-4" />}
-                onClick={handleLogin}
+                icon={<User size={16} />}
+                onClick={linkToLoginPage}
               />
             )}
 
-            <Button
-              variant="ghost"
-              icon={<ShoppingCart className="w-4 h-4" />}
-            />
+            <Button variant="ghost" icon={<ShoppingCart size={16} />} />
             <div className="md:hidden">
-              <Button variant="ghost" icon={<Menu className="w-4 h-4" />} />
+              <Button variant="ghost" icon={<Menu size={16} />} />
             </div>
           </div>
         </div>

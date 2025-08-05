@@ -17,6 +17,7 @@
 
 @layer base {
   html {
+    color: var(--color-foreground);
     font-size: 14px;
   }
 
