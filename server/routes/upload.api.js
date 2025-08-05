@@ -5,7 +5,10 @@ const { uploadToS3 } = require("../utils/s3");
 const router = express.Router();
 
 // 메모리 스토리지를 사용해 파일을 메모리 버퍼로 처리
-const upload = multer({ storage: multer.memoryStorage() });
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB 제한
+});
 
 // POST /api/upload/image
 router.post("/image", upload.single("image"), async (req, res) => {
