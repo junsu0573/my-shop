@@ -10,5 +10,7 @@ router.post(
   authMiddleware.verifyAdmin,
   categoryController.createCategory
 );
+// 카테고리 불러오기
+router.get("/", categoryController.getCategories);
 
 module.exports = router;
