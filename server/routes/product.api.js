@@ -11,4 +11,7 @@ router.post(
   productController.createProduct
 );
 
+// 프로덕트 검색
+router.get("/", productController.getProduct);
+
 module.exports = router;
