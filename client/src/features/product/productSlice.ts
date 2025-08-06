@@ -5,6 +5,7 @@ import {
   type Category,
   type ProductFormData,
 } from "./productAPI";
+import { uploadImageThunk } from "../image/uploadImageToS3";
 
 // Slice
 interface ProductState {
@@ -56,7 +57,16 @@ export const createProductThunk = createAsyncThunk<
 const productSlice = createSlice({
   name: "product",
   initialState,
-  reducers: {},
+  reducers: {
+    resetProduct: (state) => {
+      state.status = "idle";
+      state.error = null;
+    },
+    setError: (state, action) => {
+      // 외부 에러 컨트롤 (imageToS3)
+      state.error = action.payload;
+    },
+  },
   extraReducers: (builder) => {
     builder
       // 카테고리 fetch
@@ -66,6 +76,15 @@ const productSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchCategories.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 이미지 업로드
+      .addCase(uploadImageThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(uploadImageThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       })
@@ -86,4 +105,5 @@ const productSlice = createSlice({
   },
 });
 
+export const { resetProduct, setError } = productSlice.actions;
 export default productSlice.reducer;

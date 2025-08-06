@@ -4,15 +4,20 @@ import Button from "../../shared/ui/button";
 import Input from "../../shared/ui/input";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
-import { uploadImageToS3 } from "../image/uploadImageToS3";
-import { createProductThunk } from "./productSlice";
+import { uploadImageThunk } from "../image/uploadImageToS3";
+import { createProductThunk, resetProduct } from "./productSlice";
+import { useToast } from "../../shared/ui/ToastContext";
 
 interface ProductCreateModalProps {
   onClose: () => void;
 }
 
 function ProductCreateModal({ onClose }: ProductCreateModalProps) {
-  const { categories } = useSelector((state: RootState) => state.product);
+  const { categories, status, error } = useSelector(
+    (state: RootState) => state.product
+  );
+  const isLoading = status === "loading";
+  const { addToast } = useToast();
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
   const [imgFile, setImgFile] = useState<null | File>(null);
   const dispatch = useDispatch<AppDispatch>();
@@ -38,6 +43,7 @@ function ProductCreateModal({ onClose }: ProductCreateModalProps) {
 
   // ESC 키로 닫기
   useEffect(() => {
+    dispatch(resetProduct());
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -79,10 +85,19 @@ function ProductCreateModal({ onClose }: ProductCreateModalProps) {
     e.preventDefault();
     if (!validateForm()) return;
     // image 업로드
-    const imageUrl = await uploadImageToS3(imgFile!);
+    const uploadRes = await dispatch(uploadImageThunk(imgFile!));
+    console.log(uploadRes.payload);
+    if (uploadImageThunk.rejected.match(uploadRes)) return;
+    const imageUrl = uploadRes.payload as string;
     // product 생성
     console.log({ ...formData, imageUrl });
-    dispatch(createProductThunk({ ...formData, imageUrl }));
+    const createRes = await dispatch(
+      createProductThunk({ ...formData, imageUrl })
+    );
+    if (createProductThunk.fulfilled.match(createRes)) {
+      addToast("상품이 성공적으로 생성되었습니다.", "success");
+      onClose();
+    }
   };
 
   // input 필드
@@ -104,6 +119,7 @@ function ProductCreateModal({ onClose }: ProductCreateModalProps) {
           icon={<X size={20} />}
           className="absolute top-4 right-4"
           onClick={onClose}
+          disabled={isLoading}
         />
         <h3 className="mb-4">새 상품 추가</h3>
 
@@ -169,10 +185,19 @@ function ProductCreateModal({ onClose }: ProductCreateModalProps) {
               title="취소"
               className="px-4"
               onClick={onClose}
+              disabled={isLoading}
             />
-            <Button type="submit" title="저장" className="px-4" />
+            <Button
+              type="submit"
+              title={isLoading ? "저장중..." : "저장"}
+              className="px-4"
+              disabled={isLoading}
+            />
           </div>
         </form>
+        {error && (
+          <span className="text-alert-error text-sm mt-2">{error}</span>
+        )}
       </div>
     </div>
   );

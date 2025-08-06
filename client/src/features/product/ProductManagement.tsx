@@ -94,6 +94,9 @@ const ProductManagement = () => {
                     title="삭제"
                     icon={<Trash2 size={16} />}
                     className="text-red-500"
+                    onClick={() => {
+                      setProducts([]);
+                    }}
                   />
                 </td>
               </tr>
