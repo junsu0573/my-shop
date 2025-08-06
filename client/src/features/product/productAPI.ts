@@ -8,7 +8,7 @@ export interface Category {
   name: string;
 }
 
-// 프로덕트 폼 타입
+// 프로덕트 생성 폼 타입
 export interface ProductFormData {
   sku: string;
   name: string;
@@ -19,6 +19,38 @@ export interface ProductFormData {
   stock: number;
   description: string;
   imageUrl: string;
+}
+
+export interface Product {
+  _id: string;
+  sku: string;
+  name: string;
+  categoryId: string;
+  part: string;
+  weight: number;
+  price: number;
+  stock: number;
+  description: string;
+  imageUrl: string;
+  reviewCount: number;
+  rating: number;
+  isActive: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+// 프로덕트 검색 응답 타입
+export interface ProductListResponse {
+  data: Product[];
+  total: number;
+  page: number;
+  totalPages: number;
+}
+
+// 프로덕트 검색 쿼리 타입
+export interface ProductQuery {
+  name?: string;
+  page?: number;
 }
 
 // 카테고리 요청
@@ -39,4 +71,15 @@ export const createProduct = async (
     },
   });
   return response.data.product;
+};
+
+// 프로덕트 검색
+export const getProduct = async ({ name = "", page = 1 }: ProductQuery) => {
+  const response = await axios.get(`${BASE_URL}/product`, {
+    params: {
+      name,
+      page,
+    },
+  });
+  return response.data;
 };

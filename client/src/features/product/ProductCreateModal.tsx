@@ -10,9 +10,10 @@ import { useToast } from "../../shared/ui/ToastContext";
 
 interface ProductCreateModalProps {
   onClose: () => void;
+  onSuccess: () => void;
 }
 
-function ProductCreateModal({ onClose }: ProductCreateModalProps) {
+function ProductCreateModal({ onClose, onSuccess }: ProductCreateModalProps) {
   const { categories, status, error } = useSelector(
     (state: RootState) => state.product
   );
@@ -96,6 +97,7 @@ function ProductCreateModal({ onClose }: ProductCreateModalProps) {
     );
     if (createProductThunk.fulfilled.match(createRes)) {
       addToast("상품이 성공적으로 생성되었습니다.", "success");
+      onSuccess();
       onClose();
     }
   };

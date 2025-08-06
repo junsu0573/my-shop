@@ -2,8 +2,12 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   createProduct,
   getAllCategories,
+  getProduct,
   type Category,
+  type Product,
   type ProductFormData,
+  type ProductListResponse,
+  type ProductQuery,
 } from "./productAPI";
 import { uploadImageThunk } from "../image/uploadImageToS3";
 
@@ -12,12 +16,19 @@ interface ProductState {
   status: "idle" | "loading" | "succeeded" | "failed";
   categories: Category[];
   error: string | null;
+  productsData: ProductListResponse;
 }
 
 const initialState: ProductState = {
   status: "idle",
   categories: [],
   error: null,
+  productsData: {
+    data: [],
+    total: 0,
+    page: 1,
+    totalPages: 1,
+  },
 };
 
 // 카테고리 fetch Thunk
@@ -54,6 +65,23 @@ export const createProductThunk = createAsyncThunk<
   }
 });
 
+// 상품 검색 Thunk
+export const getProductList = createAsyncThunk<
+  ProductListResponse, // 반환값
+  ProductQuery, // payload (query)
+  { rejectValue: { status: string; message: string } } // 에러 반환 타입
+>("product/fetchAll", async (query, { rejectWithValue }) => {
+  try {
+    const response = await getProduct(query);
+    return response; // { data[], total, page, totalPages }
+  } catch (error: any) {
+    return rejectWithValue({
+      status: "failed",
+      message: error.response?.data?.message || "예기치 않은 오류 발생",
+    });
+  }
+});
+
 const productSlice = createSlice({
   name: "product",
   initialState,
@@ -71,7 +99,7 @@ const productSlice = createSlice({
     builder
       // 카테고리 fetch
       .addCase(fetchCategories.fulfilled, (state, action) => {
-        state.status = "succeeded";
+        state.status = "idle";
         state.categories = action.payload;
         state.error = null;
       })
@@ -88,7 +116,7 @@ const productSlice = createSlice({
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       })
-      // 상품 생성
+      // 프로덕트 생성
       .addCase(createProductThunk.pending, (state) => {
         state.status = "loading";
         state.error = null;
@@ -96,9 +124,22 @@ const productSlice = createSlice({
       .addCase(createProductThunk.fulfilled, (state, action) => {
         state.status = "succeeded";
         state.error = null;
-        console.log(action.payload);
       })
       .addCase(createProductThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 프로덕트 검색
+      .addCase(getProductList.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getProductList.fulfilled, (state, action) => {
+        state.status = "idle";
+        state.productsData = action.payload;
+        state.error = null;
+      })
+      .addCase(getProductList.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       });
