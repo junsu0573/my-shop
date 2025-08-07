@@ -42,9 +42,14 @@ function ProductCreateModal({ onClose, onSuccess }: ProductCreateModalProps) {
     description: "",
   });
 
+  useEffect(() => {
+    return () => {
+      dispatch(resetProduct());
+    };
+  }, []);
+
   // ESC 키로 닫기
   useEffect(() => {
-    dispatch(resetProduct());
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "Escape") onClose();
     };
@@ -87,11 +92,9 @@ function ProductCreateModal({ onClose, onSuccess }: ProductCreateModalProps) {
     if (!validateForm()) return;
     // image 업로드
     const uploadRes = await dispatch(uploadImageThunk(imgFile!));
-    console.log(uploadRes.payload);
     if (uploadImageThunk.rejected.match(uploadRes)) return;
     const imageUrl = uploadRes.payload as string;
     // product 생성
-    console.log({ ...formData, imageUrl });
     const createRes = await dispatch(
       createProductThunk({ ...formData, imageUrl })
     );
