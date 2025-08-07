@@ -6,11 +6,13 @@ import PublicRoute from "../shared/routes/PublicRoute";
 import PrivateRoute from "../shared/routes/PrivateRoute";
 import AdminLayout from "../pages/AdminLayout";
 import ProductManagement from "../features/product/ProductManagement";
+import AllProductPage from "../pages/AllProductPage";
 
 function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
+      <Route path="/products" element={<AllProductPage />} />
       <Route
         path="/login"
         element={

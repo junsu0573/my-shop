@@ -4,7 +4,6 @@ import {
   getAllCategories,
   getProduct,
   type Category,
-  type Product,
   type ProductFormData,
   type ProductListResponse,
   type ProductQuery,
@@ -121,7 +120,7 @@ const productSlice = createSlice({
         state.status = "loading";
         state.error = null;
       })
-      .addCase(createProductThunk.fulfilled, (state, action) => {
+      .addCase(createProductThunk.fulfilled, (state) => {
         state.status = "succeeded";
         state.error = null;
       })
