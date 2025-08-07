@@ -33,8 +33,7 @@ productController.createProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: "서버 오류입니다.",
-      error: error.message,
+      message: error.message || "서버 오류입니다.",
     });
   }
 };
