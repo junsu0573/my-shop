@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { cn } from "./utils";
 
 function Input({
@@ -19,4 +20,4 @@ function Input({
   );
 }
 
-export default Input;
+export default memo(Input);

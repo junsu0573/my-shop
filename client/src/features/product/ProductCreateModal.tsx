@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { X } from "lucide-react";
 import Button from "../../shared/ui/button";
 import Input from "../../shared/ui/input";
@@ -78,42 +78,48 @@ function ProductCreateModal({ onClose, onSuccess }: ProductCreateModalProps) {
   };
 
   // onChange 핸들러
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type } = e.target;
     setFormData((prev) => ({
       ...prev,
       [name]: type === "number" ? Number(value) : value,
     }));
-  };
+  }, []);
 
   // onSubmit 핸들러
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!validateForm()) return;
-    // image 업로드
-    const uploadRes = await dispatch(uploadImageThunk(imgFile!));
-    if (uploadImageThunk.rejected.match(uploadRes)) return;
-    const imageUrl = uploadRes.payload as string;
-    // product 생성
-    const createRes = await dispatch(
-      createProductThunk({ ...formData, imageUrl })
-    );
-    if (createProductThunk.fulfilled.match(createRes)) {
-      addToast("상품이 성공적으로 생성되었습니다.", "success");
-      onSuccess();
-      onClose();
-    }
-  };
+  const handleSubmit = useCallback(
+    async (e: React.FormEvent) => {
+      e.preventDefault();
+      if (!validateForm()) return;
+      // image 업로드
+      const uploadRes = await dispatch(uploadImageThunk(imgFile!));
+      if (uploadImageThunk.rejected.match(uploadRes)) return;
+      const imageUrl = uploadRes.payload as string;
+      // product 생성
+      const createRes = await dispatch(
+        createProductThunk({ ...formData, imageUrl })
+      );
+      if (createProductThunk.fulfilled.match(createRes)) {
+        addToast("상품이 성공적으로 생성되었습니다.", "success");
+        onSuccess();
+        onClose();
+      }
+    },
+    [formData, imgFile, dispatch, onClose, onSuccess, addToast]
+  );
 
   // input 필드
-  const renderInput = (label: string, name: string, type: string) => (
-    <div>
-      <label className="text-sm">{label}</label>
-      <Input name={name} type={type} placeholder="" onChange={handleChange} />
-      {errors[name] && (
-        <span className="text-alert-error text-sm">{errors[name]}</span>
-      )}
-    </div>
+  const renderInput = useCallback(
+    (label: string, name: string, type: string) => (
+      <div>
+        <label className="text-sm">{label}</label>
+        <Input name={name} type={type} placeholder="" onChange={handleChange} />
+        {errors[name] && (
+          <span className="text-alert-error text-sm">{errors[name]}</span>
+        )}
+      </div>
+    ),
+    [errors, handleChange]
   );
 
   return (

@@ -1,4 +1,4 @@
-import type { ReactNode } from "react";
+import { memo, type ReactNode } from "react";
 import { cn } from "./utils";
 
 interface ButtonProps extends React.ComponentProps<"button"> {
@@ -19,6 +19,7 @@ function Button({
     ghost: "bg-transparent hover:bg-accent text-foreground",
     outline: "bg-background hover:bg-accent border border-border",
   };
+  console.log(title, "렌더링");
   return (
     <button
       className={cn(
@@ -38,4 +39,4 @@ function Button({
   );
 }
 
-export default Button;
+export default memo(Button);
