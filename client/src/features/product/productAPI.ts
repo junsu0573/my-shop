@@ -53,6 +53,19 @@ export interface ProductQuery {
   page?: number;
 }
 
+// Product -> ProductFormData 변환
+export const toProductFormData = (p: Product): ProductFormData => ({
+  sku: p.sku,
+  name: p.name,
+  categoryId: p.categoryId,
+  part: p.part,
+  weight: p.weight,
+  price: p.price,
+  stock: p.stock,
+  description: p.description,
+  imageUrl: p.imageUrl,
+});
+
 // 카테고리 요청
 export const getAllCategories = async (): Promise<Category[]> => {
   const response = await axios.get(`${BASE_URL}/category`);
@@ -82,4 +95,19 @@ export const getProduct = async ({ name = "", page = 1 }: ProductQuery) => {
     },
   });
   return response.data;
+};
+
+// 프로덕트 수정
+export const updateProduct = async (
+  id: string,
+  formData: ProductFormData
+): Promise<ProductFormData> => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(`${BASE_URL}/product/${id}`, formData, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  return response.data.product;
 };

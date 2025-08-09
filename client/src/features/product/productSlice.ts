@@ -3,6 +3,7 @@ import {
   createProduct,
   getAllCategories,
   getProduct,
+  updateProduct,
   type Category,
   type ProductFormData,
   type ProductListResponse,
@@ -81,6 +82,23 @@ export const getProductList = createAsyncThunk<
   }
 });
 
+// 상품 수정 Thunk
+export const updateProductThunk = createAsyncThunk<
+  ProductFormData, // 반환 타입
+  { id: string; data: ProductFormData }, // payload 타입
+  { rejectValue: { status: string; message: string } } // 에러 타입
+>("product/update", async ({ id, data }, { rejectWithValue }) => {
+  try {
+    const response = await updateProduct(id, data);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue({
+      status: "failed",
+      message: error.response?.data?.message || "예기치 않은 오류 발생",
+    });
+  }
+});
+
 const productSlice = createSlice({
   name: "product",
   initialState,
@@ -139,6 +157,19 @@ const productSlice = createSlice({
         state.error = null;
       })
       .addCase(getProductList.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 프로덕트 수정
+      .addCase(updateProductThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(updateProductThunk.fulfilled, (state) => {
+        state.status = "idle";
+        state.error = null;
+      })
+      .addCase(updateProductThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       });

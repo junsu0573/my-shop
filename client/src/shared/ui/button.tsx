@@ -8,6 +8,7 @@ interface ButtonProps extends React.ComponentProps<"button"> {
 }
 
 function Button({
+  type = "button",
   className,
   variant = "default",
   title,
@@ -22,6 +23,7 @@ function Button({
 
   return (
     <button
+      type={type}
       className={cn(
         "flex items-center justify-center py-2 px-2 rounded-md disabled:bg-button-disabled disabled:cursor-not-allowed transition-colors",
         variantClass[variant],

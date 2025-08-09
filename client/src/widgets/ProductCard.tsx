@@ -30,7 +30,7 @@ function ProductCard({ data }: ProductCardProps) {
       </div>
       <div className="p-4 space-y-2">
         <h3 className="font-bold group-hover:text-destructive">{data.name}</h3>
-        <p className="text-sm text-muted-foreground">{data.weight}</p>
+        <p className="text-sm text-muted-foreground">{data.weight}g</p>
         <div className="flex items-center text-sm">
           <span className="mr-1">⭐</span>
           <span>{data.rating}</span>

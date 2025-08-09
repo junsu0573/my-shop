@@ -8,10 +8,17 @@ import type { AppDispatch, RootState } from "../../app/store";
 import ReactPaginate from "react-paginate";
 import { useSearchParams } from "react-router-dom";
 import Input from "../../shared/ui/input";
+import ProductEditModal from "./ProductEditModal";
+import { toProductFormData, type ProductFormData } from "./productAPI";
 
 const ProductManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedProduct, setSelectedProduct] = useState<{
+    id: string;
+    product: ProductFormData;
+  } | null>(null);
   // URL 쿼리 파라미터
   const [searchParams, setSearchParams] = useSearchParams();
   const name = searchParams.get("name") || "";
@@ -48,8 +55,8 @@ const ProductManagement = () => {
     });
   };
 
-  // 생성 성공 함수
-  const handleProducteCreated = () => {
+  // 상품 재로딩
+  const handleProductReload = () => {
     // 상태 초기화
     dispatch(resetProduct());
     // 재로딩
@@ -63,13 +70,21 @@ const ProductManagement = () => {
         <Button
           title="상품 추가"
           icon={<Plus size={16} />}
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsCreateModalOpen(true)}
         />
       </div>
-      {isModalOpen && (
+      {isCreateModalOpen && (
         <ProductCreateModal
-          onClose={() => setIsModalOpen(false)}
-          onSuccess={handleProducteCreated}
+          onClose={() => setIsCreateModalOpen(false)}
+          onSuccess={handleProductReload}
+        />
+      )}
+      {isEditModalOpen && (
+        <ProductEditModal
+          onClose={() => setIsEditModalOpen(false)}
+          onSuccess={handleProductReload}
+          id={selectedProduct!.id}
+          product={selectedProduct!.product}
         />
       )}
 
@@ -129,7 +144,12 @@ const ProductManagement = () => {
                       icon={<Pencil size={16} />}
                       className="text-blue-500"
                       onClick={() => {
-                        console.log("수정");
+                        setSelectedProduct({
+                          id: item._id,
+                          product: toProductFormData(item),
+                        });
+
+                        setIsEditModalOpen(true);
                       }}
                     />
                     <Button

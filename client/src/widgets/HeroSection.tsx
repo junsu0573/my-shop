@@ -1,7 +1,10 @@
 import Button from "../shared/ui/button";
 import bannerImg from "../assets/very_delicous_meat.png";
+import { useNavigate } from "react-router-dom";
 
 function HeroSection() {
+  const navigate = useNavigate();
+
   return (
     <section className="relative bg-gradient-to-r from-slate-50 to-gray-100 py-20">
       <div className="max-w-7xl mx-auto px-4 xl:px-0">
@@ -19,7 +22,13 @@ function HeroSection() {
               사람들과 함께하세요.
             </p>
             <div className="flex flex-col sm:flex-row gap-4">
-              <Button title="지금 쇼핑하기" className="px-6">
+              <Button
+                title="지금 쇼핑하기"
+                className="px-6"
+                onClick={() => {
+                  navigate("/products");
+                }}
+              >
                 지금 쇼핑하기
               </Button>
               <Button

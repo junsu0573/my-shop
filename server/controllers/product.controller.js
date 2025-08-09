@@ -66,9 +66,12 @@ productController.getProduct = async (req, res) => {
       page,
       totalPages: Math.ceil(total / limit),
     });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ status: "error", message: "상품 목록 조회 실패" });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "상품 목록 조회 실패",
+      error: error.message,
+    });
   }
 };
 
