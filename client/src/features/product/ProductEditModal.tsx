@@ -55,9 +55,9 @@ function ProductEditModal({
     if (!formData.categoryId.trim())
       newErrors.categoryId = "카테고리를 선택해주세요.";
     if (!formData.part.trim()) newErrors.part = "부위를 입력해주세요.";
-    if (formData.weight <= 0) newErrors.weight = "무게를 입력해주세요.";
-    if (formData.price <= 0) newErrors.price = "가격을 입력해주세요.";
-    if (formData.stock <= 0) newErrors.stock = "재고를 입력해주세요.";
+    if (formData.weight < 0) newErrors.weight = "무게를 입력해주세요.";
+    if (formData.price < 0) newErrors.price = "가격을 입력해주세요.";
+    if (formData.stock < 0) newErrors.stock = "재고를 입력해주세요.";
     if (isEditImg && !imgFile) newErrors.imgFile = "이미지를 업로드해주세요.";
 
     setErrors(newErrors);
