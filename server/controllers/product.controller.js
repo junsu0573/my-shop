@@ -33,7 +33,10 @@ productController.createProduct = async (req, res) => {
   } catch (error) {
     return res.status(500).json({
       status: "error",
-      message: error.message || "서버 오류입니다.",
+      message:
+        (error.message?.includes("E11000") && "중복된 SKU입니다.") ||
+        "서버 오류입니다.",
+      error: error.message,
     });
   }
 };
