@@ -42,7 +42,7 @@ productController.createProduct = async (req, res) => {
 };
 
 // 프로덕트 검색
-productController.getProduct = async (req, res) => {
+productController.searchProduct = async (req, res) => {
   try {
     const page = parseInt(req.query.page) || 1;
     const limit = 10;
@@ -133,4 +133,20 @@ productController.deleteProduct = async (req, res) => {
     });
   }
 };
+
+// 프로덕트 조회
+productController.getProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findById(productId);
+    return res.status(200).json({ status: "success", product });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "서버 오류입니다.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = productController;

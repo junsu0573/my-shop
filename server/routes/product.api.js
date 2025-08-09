@@ -12,7 +12,7 @@ router.post(
 );
 
 // 프로덕트 검색
-router.get("/", productController.getProduct);
+router.get("/", productController.searchProduct);
 
 // 프로덕트 수정
 router.put(
@@ -29,5 +29,8 @@ router.delete(
   authMiddleware.verifyAdmin,
   productController.deleteProduct
 );
+
+// 프로덕트 조회
+router.get("/:id", productController.getProduct);
 
 module.exports = router;
