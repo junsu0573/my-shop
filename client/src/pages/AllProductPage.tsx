@@ -121,16 +121,22 @@ function AllProductPage() {
             {products.length > 0 ? (
               products.map((item, idx) => {
                 const isLast = idx === products.length - 1;
-
-                return (
-                  <Link
-                    to={`/products/${item._id}`}
-                    key={idx}
-                    ref={isLast ? lastRef : null}
-                  >
-                    <ProductCard data={item} />
-                  </Link>
-                );
+                if (!item.stock)
+                  return (
+                    <div key={idx} ref={isLast ? lastRef : null}>
+                      <ProductCard data={item} />
+                    </div>
+                  );
+                else
+                  return (
+                    <Link
+                      to={`/products/${item._id}`}
+                      key={idx}
+                      ref={isLast ? lastRef : null}
+                    >
+                      <ProductCard data={item} />
+                    </Link>
+                  );
               })
             ) : (
               <h3>검색 결과가 없습니다.</h3>

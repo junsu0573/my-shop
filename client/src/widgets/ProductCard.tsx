@@ -29,7 +29,15 @@ function ProductCard({ data }: ProductCardProps) {
         )}
       </div>
       <div className="p-4 space-y-2">
-        <h3 className="font-bold group-hover:text-destructive">{data.name}</h3>
+        <div className="flex justify-between items-center">
+          <h3 className="font-bold group-hover:text-destructive">
+            {data.name}
+          </h3>
+          <span className="text-sm text-muted">
+            {data.stock === 0 ? "품절" : `${data.stock}개 남음`}
+          </span>
+        </div>
+
         <p className="text-sm text-muted-foreground">{data.weight}g</p>
         <div className="flex items-center text-sm">
           <span className="mr-1">⭐</span>
