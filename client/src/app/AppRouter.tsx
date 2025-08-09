@@ -7,12 +7,14 @@ import PrivateRoute from "../shared/routes/PrivateRoute";
 import AdminLayout from "../pages/AdminLayout";
 import ProductManagement from "../features/product/ProductManagement";
 import AllProductPage from "../pages/AllProductPage";
+import ProductDetailPage from "../pages/ProductDetailPage";
 
 function AppRouter() {
   return (
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/products" element={<AllProductPage />} />
+      <Route path="/products/:id" element={<ProductDetailPage />} />
       <Route
         path="/login"
         element={

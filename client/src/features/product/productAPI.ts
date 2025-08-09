@@ -87,7 +87,7 @@ export const createProduct = async (
 };
 
 // 프로덕트 검색
-export const getProduct = async ({ name = "", page = 1 }: ProductQuery) => {
+export const searchProduct = async ({ name = "", page = 1 }: ProductQuery) => {
   const response = await axios.get(`${BASE_URL}/product`, {
     params: {
       name,
@@ -121,5 +121,11 @@ export const deleteProduct = async (id: string): Promise<ProductFormData> => {
       Authorization: token,
     },
   });
+  return response.data.product;
+};
+
+// 프로덕트 조회
+export const getProduct = async (id: string): Promise<Product> => {
+  const response = await axios.get(`${BASE_URL}/product/${id}`);
   return response.data.product;
 };

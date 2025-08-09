@@ -4,8 +4,10 @@ import {
   deleteProduct,
   getAllCategories,
   getProduct,
+  searchProduct,
   updateProduct,
   type Category,
+  type Product,
   type ProductFormData,
   type ProductListResponse,
   type ProductQuery,
@@ -73,7 +75,7 @@ export const getProductList = createAsyncThunk<
   { rejectValue: { status: string; message: string } } // 에러 반환 타입
 >("product/fetchAll", async (query, { rejectWithValue }) => {
   try {
-    const response = await getProduct(query);
+    const response = await searchProduct(query);
     return response; // { data[], total, page, totalPages }
   } catch (error: any) {
     return rejectWithValue({
@@ -108,6 +110,23 @@ export const deleteProductThunk = createAsyncThunk<
 >("product/delete", async ({ id }, { rejectWithValue }) => {
   try {
     const response = await deleteProduct(id);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue({
+      status: "failed",
+      message: error.response?.data?.message || "예기치 않은 오류 발생",
+    });
+  }
+});
+
+// 상품 삭제 Thunk
+export const getProductThunk = createAsyncThunk<
+  Product, // 반환 타입
+  { id: string }, // payload 타입
+  { rejectValue: { status: string; message: string } } // 에러 타입
+>("product/get", async ({ id }, { rejectWithValue }) => {
+  try {
+    const response = await getProduct(id);
     return response;
   } catch (error: any) {
     return rejectWithValue({
@@ -201,6 +220,19 @@ const productSlice = createSlice({
         state.error = null;
       })
       .addCase(deleteProductThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 프로덕트 조회
+      .addCase(getProductThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(getProductThunk.fulfilled, (state) => {
+        state.status = "idle";
+        state.error = null;
+      })
+      .addCase(getProductThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       });
