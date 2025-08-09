@@ -28,7 +28,6 @@ function AllProductPage() {
 
   // 프로덕트 데이터 fetch
   const fetchProducts = useCallback(async () => {
-    if (page === 1) setProducts([]);
     const res = await dispatch(getProductList({ name: name, page }));
     if (getProductList.fulfilled.match(res)) {
       const loadedProducts = res.payload?.data || [];
@@ -39,6 +38,12 @@ function AllProductPage() {
   useEffect(() => {
     fetchProducts();
   }, [fetchProducts]);
+
+  // 주소 변했을 떄 초기화
+  useEffect(() => {
+    setProducts([]);
+    setPage(1);
+  }, [name]);
 
   // 무한 스크롤
   const observer = useRef<IntersectionObserver | null>(null);
@@ -59,8 +64,6 @@ function AllProductPage() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name === searchInput) return;
-    setProducts([]);
-    setPage(1);
     setSearchParams({ name: searchInput });
   };
 
