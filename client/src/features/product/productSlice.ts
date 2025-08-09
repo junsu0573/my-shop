@@ -1,6 +1,7 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {
   createProduct,
+  deleteProduct,
   getAllCategories,
   getProduct,
   updateProduct,
@@ -99,6 +100,23 @@ export const updateProductThunk = createAsyncThunk<
   }
 });
 
+// 상품 삭제 Thunk
+export const deleteProductThunk = createAsyncThunk<
+  ProductFormData, // 반환 타입
+  { id: string }, // payload 타입
+  { rejectValue: { status: string; message: string } } // 에러 타입
+>("product/delete", async ({ id }, { rejectWithValue }) => {
+  try {
+    const response = await deleteProduct(id);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue({
+      status: "failed",
+      message: error.response?.data?.message || "예기치 않은 오류 발생",
+    });
+  }
+});
+
 const productSlice = createSlice({
   name: "product",
   initialState,
@@ -170,6 +188,19 @@ const productSlice = createSlice({
         state.error = null;
       })
       .addCase(updateProductThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 프로덕트 삭제
+      .addCase(deleteProductThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(deleteProductThunk.fulfilled, (state) => {
+        state.status = "idle";
+        state.error = null;
+      })
+      .addCase(deleteProductThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       });

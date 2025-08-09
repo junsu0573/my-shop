@@ -111,3 +111,15 @@ export const updateProduct = async (
   });
   return response.data.product;
 };
+
+// 프로덕트 삭제
+export const deleteProduct = async (id: string): Promise<ProductFormData> => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.delete(`${BASE_URL}/product/${id}`, {
+    headers: {
+      Authorization: token,
+    },
+  });
+  return response.data.product;
+};

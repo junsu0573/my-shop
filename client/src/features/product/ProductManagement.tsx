@@ -2,7 +2,11 @@ import { useEffect, useState } from "react";
 import { Pencil, Trash2, Plus, Search } from "lucide-react";
 import Button from "../../shared/ui/button";
 import ProductCreateModal from "./ProductCreateModal";
-import { getProductList, resetProduct } from "./productSlice";
+import {
+  deleteProductThunk,
+  getProductList,
+  resetProduct,
+} from "./productSlice";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
 import ReactPaginate from "react-paginate";
@@ -10,6 +14,7 @@ import { useSearchParams } from "react-router-dom";
 import Input from "../../shared/ui/input";
 import ProductEditModal from "./ProductEditModal";
 import { toProductFormData, type ProductFormData } from "./productAPI";
+import { useToast } from "../../shared/ui/ToastContext";
 
 const ProductManagement = () => {
   const dispatch = useDispatch<AppDispatch>();
@@ -19,6 +24,8 @@ const ProductManagement = () => {
     id: string;
     product: ProductFormData;
   } | null>(null);
+  const { addToast } = useToast();
+
   // URL 쿼리 파라미터
   const [searchParams, setSearchParams] = useSearchParams();
   const name = searchParams.get("name") || "";
@@ -61,6 +68,22 @@ const ProductManagement = () => {
     dispatch(resetProduct());
     // 재로딩
     dispatch(getProductList({ name, page }));
+  };
+
+  // 상품 삭제 핸들러
+  const handleDelete = async (id: string) => {
+    const res = await dispatch(deleteProductThunk({ id }));
+    if (deleteProductThunk.fulfilled.match(res)) {
+      addToast("삭제되었습니다.", "success");
+      // 마지막 1개를 지운 경우 이전 페이지로 이동
+      if (products.length === 1 && page > 1) {
+        setSearchParams({ name, page: String(page - 1) });
+      } else {
+        handleProductReload(); // 재조회
+      }
+    } else {
+      addToast(res.payload?.message ?? "삭제 실패", "error");
+    }
   };
 
   return (
@@ -148,18 +171,17 @@ const ProductManagement = () => {
                           id: item._id,
                           product: toProductFormData(item),
                         });
-
                         setIsEditModalOpen(true);
                       }}
+                      disabled={isLoading}
                     />
                     <Button
                       variant="ghost"
                       title="삭제"
                       icon={<Trash2 size={16} />}
                       className="text-red-500"
-                      onClick={() => {
-                        console.log("삭제");
-                      }}
+                      onClick={() => handleDelete(item._id)}
+                      disabled={isLoading}
                     />
                   </td>
                 </tr>
