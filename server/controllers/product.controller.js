@@ -72,4 +72,48 @@ productController.getProduct = async (req, res) => {
   }
 };
 
+// 프로덕트 수정
+productController.updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const {
+      sku,
+      name,
+      categoryId,
+      part,
+      weight,
+      price,
+      stock,
+      description,
+      imageUrl,
+    } = req.body;
+
+    const product = await Product.findByIdAndUpdate(
+      productId,
+      {
+        sku,
+        name,
+        categoryId,
+        part,
+        weight,
+        price,
+        stock,
+        description,
+        imageUrl,
+      },
+      { new: true }
+    );
+
+    return res.status(201).json({ status: "success", product });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message:
+        (error.message?.includes("E11000") && "중복된 SKU입니다.") ||
+        "서버 오류입니다.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = productController;
