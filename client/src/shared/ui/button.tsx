@@ -19,7 +19,7 @@ function Button({
     ghost: "bg-transparent hover:bg-accent text-foreground",
     outline: "bg-background hover:bg-accent border border-border",
   };
-  console.log(title, "렌더링");
+
   return (
     <button
       className={cn(
