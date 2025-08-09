@@ -9,10 +9,8 @@ import {
   Truck,
 } from "lucide-react";
 import Button from "../../shared/ui/button";
-import { useDispatch, useSelector } from "react-redux";
-import { type AppDispatch, type RootState } from "../../app/store";
-import { getCartThunk } from "./cartSlice";
-import type { CartLine } from "./cartAPI";
+import { useSelector } from "react-redux";
+import { type RootState } from "../../app/store";
 
 type CartDrawerProps = {
   open: boolean;
