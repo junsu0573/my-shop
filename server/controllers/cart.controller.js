@@ -54,7 +54,9 @@ cartConroller.getCart = async (req, res) => {
         .json({ status: "error", message: "장바구니가 비어있습니다." });
     }
 
-    res.status(200).json({ status: "success", cart });
+    res
+      .status(200)
+      .json({ status: "success", cart, cartQty: cart.products.length });
   } catch (error) {
     res.status(500).json({
       status: "error",
