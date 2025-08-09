@@ -107,7 +107,7 @@ productController.updateProduct = async (req, res) => {
       { new: true }
     );
 
-    return res.status(201).json({ status: "success", product });
+    return res.status(200).json({ status: "success", product });
   } catch (error) {
     return res.status(500).json({
       status: "error",
@@ -119,4 +119,18 @@ productController.updateProduct = async (req, res) => {
   }
 };
 
+// 프로덕트 삭제
+productController.deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const product = await Product.findByIdAndDelete(productId);
+    return res.status(200).json({ status: "success", product });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "서버 오류입니다.",
+      error: error.message,
+    });
+  }
+};
 module.exports = productController;

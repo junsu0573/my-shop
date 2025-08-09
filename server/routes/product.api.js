@@ -22,4 +22,12 @@ router.put(
   productController.updateProduct
 );
 
+// 프로덕트 삭제
+router.delete(
+  "/:id",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  productController.deleteProduct
+);
+
 module.exports = router;
