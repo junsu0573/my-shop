@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import testImg from "../assets/very_delicous_meat.png";
 import {
   ShoppingCart,
   Truck,

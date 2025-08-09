@@ -4,13 +4,12 @@ import type { AppDispatch, RootState } from "../app/store";
 import ProductCard from "../widgets/ProductCard";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { getProductList } from "../features/product/productSlice";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import Input from "../shared/ui/input";
 import Button from "../shared/ui/button";
 
 function AllProductPage() {
   const dispatch = useDispatch<AppDispatch>();
-  const navigate = useNavigate();
   // 프로덕트 데이터
   const { productsData, status } = useSelector(
     (state: RootState) => state.product
