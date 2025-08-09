@@ -1,3 +1,4 @@
+const { model } = require("mongoose");
 const Cart = require("../models/Cart");
 
 const cartConroller = {};
@@ -34,11 +35,11 @@ cartConroller.addToCart = async (req, res) => {
     }
 
     await cart.save();
-    res
+    return res
       .status(200)
       .json({ status: "success", cart, cartQty: cart.products.length });
   } catch (error) {
-    res.status(500).json({ status: "error", message: error.message });
+    return res.status(500).json({ status: "error", message: error.message });
   }
 };
 
@@ -47,18 +48,16 @@ cartConroller.getCart = async (req, res) => {
   try {
     const userId = req.params.id;
 
-    const cart = await Cart.findOne({ userId });
+    const cart = await Cart.findOne({ userId }).populate("products.productId");
     if (!cart) {
-      return res
-        .status(404)
-        .json({ status: "error", message: "장바구니가 비어있습니다." });
+      return res.status(200).json({ status: "success", cartQty: 0 });
     }
 
-    res
+    return res
       .status(200)
       .json({ status: "success", cart, cartQty: cart.products.length });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       status: "error",
       message: "서버 오류입니다.",
       error: error.message,

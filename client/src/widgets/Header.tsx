@@ -2,12 +2,24 @@ import { Link, useNavigate } from "react-router-dom";
 import Input from "../shared/ui/input";
 import Button from "../shared/ui/button";
 import { User, ShoppingCart, Menu } from "lucide-react";
-import { useSelector } from "react-redux";
-import type { RootState } from "../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../app/store";
+import { useEffect, useState } from "react";
+import CartDrawer from "../features/cart/CartDrawer";
+import { getCartThunk } from "../features/cart/cartSlice";
 
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
+  const dispatch = useDispatch<AppDispatch>();
   const navigate = useNavigate();
+  const [openCart, setOpenCart] = useState(false);
+  const { data } = useSelector((state: RootState) => state.cart);
+
+  // Cart 정보 fetch
+  useEffect(() => {
+    if (user) dispatch(getCartThunk(user._id));
+  }, [user]);
+
   const linkToAdminPage = () => {
     navigate("/admin");
   };
@@ -81,14 +93,28 @@ function Header() {
                 onClick={linkToLoginPage}
               />
             )}
+            <div className="relative">
+              <Button
+                variant="ghost"
+                icon={<ShoppingCart size={16} />}
+                onClick={() => setOpenCart(true)}
+              />
 
-            <Button variant="ghost" icon={<ShoppingCart size={16} />} />
+              <span
+                className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center
+                 rounded-full bg-red-400 text-[10px] font-bold text-white"
+              >
+                {data?.cart?.products?.length ?? 0}
+              </span>
+            </div>
+
             <div className="md:hidden">
               <Button variant="ghost" icon={<Menu size={16} />} />
             </div>
           </div>
         </div>
       </div>
+      <CartDrawer open={openCart} onClose={() => setOpenCart(false)} />
     </header>
   );
 }

@@ -18,15 +18,22 @@ import { useDispatch, useSelector } from "react-redux";
 import { getProductThunk } from "../features/product/productSlice";
 import type { AppDispatch, RootState } from "../app/store";
 import type { Product } from "../features/product/productAPI";
+import Header from "../widgets/Header";
+import { AddToCartThunk, getCartThunk } from "../features/cart/cartSlice";
+import { useToast } from "../shared/ui/ToastContext";
 
 function ProductDetailPage() {
   const dispatch = useDispatch<AppDispatch>();
   const { id } = useParams();
   const [product, setProduct] = useState<Product | null>(null);
+  const { addToast } = useToast();
   const { categories, status } = useSelector(
     (state: RootState) => state.product
   );
   const isLoading = status === "loading";
+  const [qty, setQty] = useState(1);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const cartError = useSelector((state: RootState) => state.cart).error;
 
   // 프로덕트 데이터 호출
   const fetchProduct = useCallback(async () => {
@@ -41,10 +48,29 @@ function ProductDetailPage() {
     fetchProduct();
   }, [fetchProduct]);
 
-  const [qty, setQty] = useState(1);
+  // 장바구니 추가 핸들러
+  const handleAddCart = async () => {
+    if (user && product) {
+      const res = await dispatch(
+        AddToCartThunk({
+          userId: user._id,
+          productId: product._id,
+          quantity: qty,
+        })
+      );
+      if (AddToCartThunk.rejected.match(res)) {
+        addToast(cartError || "에러발생", "error");
+      }
+      if (AddToCartThunk.fulfilled.match(res)) {
+        dispatch(getCartThunk(user._id));
+        addToast("장바구니에 성공적으로 추가되었습니다.", "success");
+      }
+    }
+  };
 
   return (
     <div className="bg-background min-h-screen">
+      <Header />
       <div className="max-w-7xl mx-auto px-4 xl:px-0 py-6">
         {/* Breadcrumbs */}
         <nav className="text-sm text-muted flex items-center gap-1 mb-6">
@@ -158,6 +184,7 @@ function ProductDetailPage() {
                 title="장바구니"
                 icon={<ShoppingCart size={20} />}
                 className="flex-1"
+                onClick={handleAddCart}
               />
               <Button title="지금 구매" className="flex-1" />
 
