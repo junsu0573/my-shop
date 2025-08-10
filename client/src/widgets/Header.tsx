@@ -1,5 +1,4 @@
 import { Link, useNavigate } from "react-router-dom";
-import Input from "../shared/ui/input";
 import Button from "../shared/ui/button";
 import { User, ShoppingCart, Menu } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
