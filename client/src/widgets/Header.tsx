@@ -93,20 +93,22 @@ function Header() {
                 onClick={linkToLoginPage}
               />
             )}
-            <div className="relative">
-              <Button
-                variant="ghost"
-                icon={<ShoppingCart size={16} />}
-                onClick={() => setOpenCart(true)}
-              />
+            {user && (
+              <div className="relative">
+                <Button
+                  variant="ghost"
+                  icon={<ShoppingCart size={16} />}
+                  onClick={() => setOpenCart(true)}
+                />
 
-              <span
-                className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center
+                <span
+                  className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center
                  rounded-full bg-red-400 text-[10px] font-bold text-white"
-              >
-                {data?.cart?.products?.length ?? 0}
-              </span>
-            </div>
+                >
+                  {data?.cart?.products?.length ?? 0}
+                </span>
+              </div>
+            )}
 
             <div className="md:hidden">
               <Button variant="ghost" icon={<Menu size={16} />} />
