@@ -31,10 +31,14 @@ function Header() {
     <header className="bg-background border-b border-border sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 xl:px-0">
         <div className="flex items-center justify-between h-16">
-          <h1 className="text-primary mr-5">한우마켓</h1>
+          <Link to="/">
+            <span className="text-2xl sm:text-4xl font-bold text-primary sm:mr-10">
+              한우마켓
+            </span>
+          </Link>
 
           {/* 네비게이션 메뉴 */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex md:flex-1 items-center space-x-8">
             <Link
               to="/"
               className="text-foreground hover:text-primary transition-colors"
@@ -42,25 +46,13 @@ function Header() {
               홈
             </Link>
             <Link
-              to="#"
+              to="/products"
               className="text-foreground hover:text-primary transition-colors"
             >
-              등심
+              전체상품
             </Link>
             <Link
-              to="#"
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              안심
-            </Link>
-            <Link
-              to="#"
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              갈비
-            </Link>
-            <Link
-              to="#"
+              to="/"
               className="text-foreground hover:text-primary transition-colors"
             >
               선물세트
@@ -68,14 +60,14 @@ function Header() {
           </nav>
 
           {/* 검색바 */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
+          {/* <div className="hidden md:flex flex-1 max-w-md mx-8">
             <div className="relative w-full">
               <Input />
             </div>
-          </div>
+          </div> */}
 
           {/* 우측 메뉴 */}
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-0 sm:space-x-2">
             {user?.role === "admin" && (
               <Button
                 variant="ghost"
@@ -84,7 +76,7 @@ function Header() {
               />
             )}
             {user ? (
-              <Button variant="ghost" title={user.email} />
+              <Button variant="ghost" title={user.name} />
             ) : (
               <Button
                 variant="ghost"
