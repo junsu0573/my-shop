@@ -1,7 +1,11 @@
 import Button from "../shared/ui/button";
 import type { Product } from "../features/product/productAPI";
-import { useSelector } from "react-redux";
-import type { RootState } from "../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../app/store";
+import type { FormEvent } from "react";
+import { useToast } from "../shared/ui/ToastContext";
+import { AddToCartThunk, getCartThunk } from "../features/cart/cartSlice";
+import { Star } from "lucide-react";
 
 interface ProductCardProps {
   data: Product;
@@ -9,10 +13,40 @@ interface ProductCardProps {
 
 function ProductCard({ data }: ProductCardProps) {
   const { categories } = useSelector((state: RootState) => state.product);
+  const { user } = useSelector((state: RootState) => state.auth);
+  const { status } = useSelector((state: RootState) => state.cart);
+  const isLoading = status === "loading";
+  const { addToast } = useToast();
+  const dispatch = useDispatch<AppDispatch>();
 
   const cateogry = categories.find(
     (item) => item._id === data.categoryId
   )?.name;
+
+  // 장바구니 추가 핸들러
+  const handleAddCart = async (e: FormEvent) => {
+    e.preventDefault();
+    if (!user) {
+      addToast("로그인이 필요합니다.", "error");
+      return;
+    }
+    if (data) {
+      const res = await dispatch(
+        AddToCartThunk({
+          userId: user._id,
+          productId: data._id,
+          quantity: 1,
+        })
+      );
+      if (AddToCartThunk.rejected.match(res)) {
+        addToast(res.payload?.message || `${res.payload}`, "error");
+      }
+      if (AddToCartThunk.fulfilled.match(res)) {
+        dispatch(getCartThunk(user._id));
+        addToast("장바구니에 성공적으로 추가되었습니다.", "success");
+      }
+    }
+  };
 
   return (
     <div className="group rounded-xl border border-border overflow-hidden hover:shadow-lg hover:cursor-pointer transition duration-300">
@@ -33,14 +67,17 @@ function ProductCard({ data }: ProductCardProps) {
           <h3 className="font-bold group-hover:text-destructive">
             {data.name}
           </h3>
-          <span className="text-sm text-muted">
-            {data.stock === 0 ? "품절" : `${data.stock}개 남음`}
-          </span>
+
+          {!data.stock ? (
+            <span className="text-sm font-bold text-destructive">품절</span>
+          ) : (
+            <span className="text-sm text-muted">{data.stock}개 남음</span>
+          )}
         </div>
 
         <p className="text-sm text-muted-foreground">{data.weight}g</p>
         <div className="flex items-center text-sm">
-          <span className="mr-1">⭐</span>
+          <Star size={12} className="mr-1 fill-yellow-400 stroke-yellow-400" />
           <span>{data.rating}</span>
           <span className="text-muted ml-1">({data.reviewCount}개 리뷰)</span>
         </div>
@@ -49,7 +86,12 @@ function ProductCard({ data }: ProductCardProps) {
             {data.price.toLocaleString()}원
           </span>
         </div>
-        <Button title="장바구니 담기" className="w-full" />
+        <Button
+          title="장바구니 담기"
+          className="w-full"
+          onClick={handleAddCart}
+          disabled={isLoading || !data.stock}
+        />
       </div>
     </div>
   );

@@ -51,3 +51,41 @@ export const AddToCart = async (
   });
   return response.data;
 };
+
+// 장바구니 상품 삭제
+export const deleteItem = async (
+  userId: string,
+  productId: string
+): Promise<CartResponse> => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.delete(
+    `${BASE_URL}/cart/${userId}/items/${productId}`,
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+  return response.data;
+};
+
+// 장바구니 상품 수량 수정
+export const updateItem = async (
+  userId: string,
+  productId: string,
+  quantity: number
+): Promise<CartResponse> => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(
+    `${BASE_URL}/cart/${userId}/items/${productId}`,
+    { quantity },
+    {
+      headers: {
+        Authorization: token,
+      },
+    }
+  );
+  return response.data;
+};

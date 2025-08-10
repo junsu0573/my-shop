@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import {
   X,
   ShoppingCart,
@@ -9,28 +9,21 @@ import {
   Truck,
 } from "lucide-react";
 import Button from "../../shared/ui/button";
-import { useSelector } from "react-redux";
-import { type RootState } from "../../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../app/store";
+import { deleteItemThunk, updateItemThunk } from "./cartSlice";
 
 type CartDrawerProps = {
   open: boolean;
-  isLoading?: boolean;
   onClose: () => void;
 };
 
-const formatCurrency = (v: number) =>
-  new Intl.NumberFormat("ko-KR", {
-    style: "currency",
-    currency: "KRW",
-    maximumFractionDigits: 0,
-  }).format(v);
-
 function CartDrawer({ open, onClose }: CartDrawerProps) {
-  const panelRef = useRef<HTMLDivElement>(null);
-  const closeBtnRef = useRef<HTMLButtonElement>(null);
-
-  const { data, status } = useSelector((state: RootState) => state.cart);
-
+  const { data, status, totalPrice, shippingPrice } = useSelector(
+    (state: RootState) => state.cart
+  );
+  const { user } = useSelector((state: RootState) => state.auth);
+  const dispatch = useDispatch<AppDispatch>();
   const isLoading = status === "loading";
   const products = data?.cart?.products ?? [];
 
@@ -43,9 +36,20 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  // 상품 삭제 버튼 핸들러
+  const handleDeleteProduct = (productId: string) => {
+    if (!user) return;
+    dispatch(deleteItemThunk({ userId: user._id, productId }));
+  };
+
+  // 상품 수량 조절 핸들러
+  const handleUpdateProduct = (productId: string, quantity: number) => {
+    if (!user) return;
+    dispatch(updateItemThunk({ userId: user._id, productId, quantity }));
+  };
+
   return (
     <div
-      aria-hidden={!open}
       className={`fixed inset-0 z-[100] ${
         open ? "pointer-events-auto" : "pointer-events-none"
       }`}
@@ -56,15 +60,10 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
         className={`absolute inset-0 bg-black/40 transition-opacity ${
           open ? "opacity-100" : "opacity-0"
         }`}
-        aria-hidden="true"
       />
 
       {/* 사이드바 */}
       <aside
-        ref={panelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label="장바구니"
         className={`absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl
         transition-transform duration-300 ease-in-out
         ${open ? "translate-x-0" : "translate-x-full"}
@@ -78,9 +77,9 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
           </div>
           <Button
             variant="ghost"
-            ref={closeBtnRef}
             onClick={onClose}
             icon={<X size={20} />}
+            disabled={isLoading}
           />
         </div>
 
@@ -92,63 +91,87 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
             <EmptyState />
           ) : (
             <ul className="space-y-4">
-              {products?.map((item, idx) => (
-                <li
-                  key={idx}
-                  className="flex gap-3 rounded-2xl border border-border p-3"
-                >
-                  <div className="h-20 w-20 overflow-hidden rounded-xl">
-                    <img
-                      src={item.productId.imageUrl}
-                      alt={item.productId.name}
-                      className="h-full w-full object-cover"
-                    />
-                  </div>
-
-                  <div className="min-w-0 flex-1">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <h3>{item.productId.name}</h3>
-                      </div>
-                      <Button
-                        variant="ghost"
-                        onClick={() => {}}
-                        icon={<Trash2 size={14} />}
+              {products &&
+                products.map((item, idx) => (
+                  <li
+                    key={idx}
+                    className="flex gap-3 rounded-2xl border border-border p-3"
+                  >
+                    <div className="h-20 w-20 overflow-hidden rounded-xl">
+                      <img
+                        src={item.productId.imageUrl}
+                        alt={item.productId.name}
+                        className="h-full w-full object-cover"
                       />
                     </div>
 
-                    <div className="mt-3 flex items-center justify-between">
-                      <div className="inline-flex items-center rounded-xl border border-border">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="min-w-0">
+                          <h3>{item.productId.name}</h3>
+                          <span className="text-sm text-muted">
+                            {item.productId.stock}개 남음
+                          </span>
+                        </div>
                         <Button
                           variant="ghost"
-                          onClick={() => {}}
-                          className="rounded-xl"
-                          icon={<Minus size={12} />}
-                        />
-
-                        <span className="w-10 text-center text-sm tabular-nums">
-                          1
-                        </span>
-                        <Button
-                          variant="ghost"
-                          onClick={() => {}}
-                          className="rounded-xl"
-                          icon={<Plus size={12} />}
+                          onClick={() =>
+                            handleDeleteProduct(item.productId._id)
+                          }
+                          icon={<Trash2 size={14} />}
+                          disabled={isLoading}
                         />
                       </div>
 
-                      <div className="text-right">
-                        <p className="text-sm text-muted">
-                          개당 {formatCurrency(item.productId.price || 0)}
-                        </p>
-                        <p className="font-semibold">
-                          {formatCurrency((item.productId.price || 0) * 1)}
-                        </p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <div className="inline-flex items-center rounded-xl border border-border">
+                          <Button
+                            variant="ghost"
+                            onClick={() =>
+                              handleUpdateProduct(
+                                item.productId._id,
+                                item.quantity - 1
+                              )
+                            }
+                            className="rounded-xl disabled:bg-transparent"
+                            icon={<Minus size={12} />}
+                            disabled={isLoading || item.quantity <= 1}
+                          />
+
+                          <span className="w-10 text-center text-sm tabular-nums">
+                            {item.quantity}
+                          </span>
+                          <Button
+                            variant="ghost"
+                            onClick={() =>
+                              handleUpdateProduct(
+                                item.productId._id,
+                                item.quantity + 1
+                              )
+                            }
+                            className="rounded-xl disabled:bg-transparent"
+                            icon={<Plus size={12} />}
+                            disabled={
+                              isLoading || item.quantity >= item.productId.stock
+                            }
+                          />
+                        </div>
+
+                        <div className="text-right">
+                          <p className="text-sm text-muted">
+                            개당 ₩{item.productId.price?.toLocaleString()}
+                          </p>
+                          <p className="font-semibold">
+                            ₩
+                            {(
+                              item.productId.price * item.quantity
+                            ).toLocaleString()}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                </li>
-              ))}
+                  </li>
+                ))}
             </ul>
           )}
         </div>
@@ -157,12 +180,20 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
         <div className="border-t border-border p-5">
           <div className="mb-3 flex items-center justify-between">
             <span className="text-sm text-muted">소계</span>
-            <span className="text-lg font-semibold"></span>
+            <span className="text-lg font-semibold">
+              ₩{totalPrice.toLocaleString()}
+            </span>
           </div>
 
           <div className="mb-4 flex items-center gap-2 text-sm text-muted">
             <Truck size={15} />
-            <span>50,000원 결제부터 무료배송</span>
+            {shippingPrice ? (
+              <span>
+                배송비: {shippingPrice}원 (50,000원 결제부터 무료배송)
+              </span>
+            ) : (
+              <span>무료 배송</span>
+            )}
           </div>
 
           <div className="mb-4 flex items-center gap-2 text-sm text-muted">
