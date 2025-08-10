@@ -7,6 +7,20 @@ const cartConroller = require("../controllers/cart.controller");
 router.post("/", authMiddleware.verifyToken, cartConroller.addToCart);
 
 // 장바구니 조회
-router.get("/:id", cartConroller.getCart);
+router.get("/:id", authMiddleware.verifyToken, cartConroller.getCart);
+
+// 장바구니 상품 수정
+router.put(
+  "/:id/items/:productId",
+  authMiddleware.verifyToken,
+  cartConroller.udpateItemQuantity
+);
+
+// 장바구니 상품 삭제
+router.delete(
+  "/:id/items/:productId",
+  authMiddleware.verifyToken,
+  cartConroller.deleteItem
+);
 
 module.exports = router;
