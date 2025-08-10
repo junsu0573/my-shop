@@ -12,6 +12,7 @@ import Button from "../../shared/ui/button";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
 import { deleteItemThunk, updateItemThunk } from "./cartSlice";
+import { useNavigate } from "react-router-dom";
 
 type CartDrawerProps = {
   open: boolean;
@@ -19,6 +20,7 @@ type CartDrawerProps = {
 };
 
 function CartDrawer({ open, onClose }: CartDrawerProps) {
+  const navigate = useNavigate();
   const { data, status, totalPrice, shippingPrice } = useSelector(
     (state: RootState) => state.cart
   );
@@ -201,7 +203,12 @@ function CartDrawer({ open, onClose }: CartDrawerProps) {
             <span>안전 결제 • 교환/환불 정책 안내</span>
           </div>
 
-          <Button title="결제하기" onClick={() => {}} className="w-full" />
+          <Button
+            title="결제하기"
+            className="w-full"
+            onClick={() => navigate("/checkout")}
+            disabled={products.length === 0 || isLoading}
+          />
         </div>
       </aside>
     </div>

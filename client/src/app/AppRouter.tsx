@@ -8,6 +8,7 @@ import AdminLayout from "../pages/AdminLayout";
 import ProductManagement from "../features/product/ProductManagement";
 import AllProductPage from "../pages/AllProductPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
+import CheckoutPage from "../features/order/CheckoutPage";
 
 function AppRouter() {
   return (
@@ -15,6 +16,7 @@ function AppRouter() {
       <Route path="/" element={<HomePage />} />
       <Route path="/products" element={<AllProductPage />} />
       <Route path="/products/:id" element={<ProductDetailPage />} />
+      <Route path="/checkout" element={<CheckoutPage />} />
       <Route
         path="/login"
         element={
