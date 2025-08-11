@@ -1,30 +1,17 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../shared/ui/button";
 import { User, ShoppingCart, Menu } from "lucide-react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../app/store";
-import { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import type { RootState } from "../app/store";
+import { useState } from "react";
 import CartDrawer from "../features/cart/CartDrawer";
-import { getCartThunk } from "../features/cart/cartSlice";
 
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
-  const dispatch = useDispatch<AppDispatch>();
+
   const navigate = useNavigate();
   const [openCart, setOpenCart] = useState(false);
   const { data } = useSelector((state: RootState) => state.cart);
-
-  // Cart 정보 fetch
-  useEffect(() => {
-    if (user) dispatch(getCartThunk(user._id));
-  }, [user]);
-
-  const linkToAdminPage = () => {
-    navigate("/admin");
-  };
-  const linkToLoginPage = () => {
-    navigate("/login");
-  };
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
@@ -71,7 +58,7 @@ function Header() {
               <Button
                 variant="ghost"
                 title="관리자페이지"
-                onClick={linkToAdminPage}
+                onClick={() => navigate("/admin")}
               />
             )}
             {user ? (
@@ -81,7 +68,7 @@ function Header() {
                 variant="ghost"
                 title="로그인"
                 icon={<User size={16} />}
-                onClick={linkToLoginPage}
+                onClick={() => navigate("/login")}
               />
             )}
             {user && (

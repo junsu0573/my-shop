@@ -41,6 +41,10 @@ const orderSchema = new mongoose.Schema(
       type: Object, // { address, detailAddress }
       required: true,
     },
+    orderMemo: {
+      type: String,
+      required: true,
+    },
   },
   { timestamps: true }
 );

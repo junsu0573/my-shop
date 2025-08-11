@@ -67,9 +67,7 @@ function RegisterForm() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
-    formData.address += ` ${formData.detailAddress}`;
-    const { confirmPassword, detailAddress, ...userData } = formData;
-    dispatch(register(userData));
+    dispatch(register(formData));
   };
 
   // input 필드

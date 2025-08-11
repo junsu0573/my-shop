@@ -3,12 +3,80 @@ import Input from "../../shared/ui/input";
 import { useSelector } from "react-redux";
 import type { RootState } from "../../app/store";
 import Button from "../../shared/ui/button";
+import { useEffect, useState } from "react";
+import DaumPost from "../../widgets/DaumPost";
 
 function CheckoutPage() {
   const { data, totalPrice, shippingPrice } = useSelector(
     (state: RootState) => state.cart
   );
+  const { user } = useSelector((state: RootState) => state.auth);
+  const [isSameUser, setIsSameUser] = useState(true);
   const products = data?.cart?.products ?? [];
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const [formData, setFormData] = useState<{ [key: string]: any }>({
+    userId: "",
+    products: [] as any[],
+    reciever: {
+      name: "",
+      phone: "",
+    },
+    totalPrice: 0,
+    shippingAddress: {
+      address: "",
+      detailAddress: "",
+    },
+    orderMemo: "",
+  });
+
+  // formData 초기화
+  useEffect(() => {
+    if (user && isSameUser) {
+      setFormData({
+        userId: user._id,
+        products: products,
+        reciever: {
+          name: user.name,
+          phone: user.phone,
+        },
+        totalPrice: totalPrice,
+        shippingAddress: {
+          address: user.address,
+          detailAddress: user.detailAddress,
+        },
+      });
+    }
+    if (!isSameUser) {
+      setFormData((prev) => ({
+        ...prev,
+        reciever: {
+          name: "",
+          phone: "",
+        },
+        shippingAddress: {
+          address: "",
+          detailAddress: "",
+        },
+      }));
+    }
+  }, [user, isSameUser, products, totalPrice]);
+
+  // 유효성 검사
+  const validateForm = () => {
+    setErrors({});
+    const newErrors: { [key: string]: string } = {};
+    if (!formData.reciever.name.trim())
+      newErrors.recieverName = "수령인을 입력해주세요.";
+    if (!formData.reciever.phone.trim())
+      newErrors.recieverPhone = "전화번호를 입력해주세요.";
+    if (!formData.shippingAddress.address.trim())
+      newErrors.address = "주소을 입력해주세요.";
+    if (!formData.shippingAddress.detailAddress.trim())
+      newErrors.detailAddress = "상세 주소를 입력해주세요.";
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   return (
     <div className="bg-slate-50">
@@ -60,9 +128,27 @@ function CheckoutPage() {
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <Input type="text" placeholder="이름" />
-                <Input type="text" placeholder="이메일" />
-                <Input type="text" placeholder="전화번호" />
+                <Input
+                  type="text"
+                  readOnly
+                  disabled={true}
+                  placeholder="이름"
+                  value={user?.name}
+                />
+                <Input
+                  type="text"
+                  readOnly
+                  disabled={true}
+                  placeholder="이메일"
+                  value={user?.email}
+                />
+                <Input
+                  type="text"
+                  readOnly
+                  disabled={true}
+                  placeholder="전화번호"
+                  value={user?.phone}
+                />
               </div>
             </section>
 
@@ -75,16 +161,121 @@ function CheckoutPage() {
                 </div>
 
                 <label className="flex items-center gap-2 text-sm cursor-pointer select-none">
-                  <input type="checkbox" />
+                  <input
+                    type="checkbox"
+                    checked={isSameUser}
+                    onChange={() => {
+                      setIsSameUser((prev) => !prev);
+                      setErrors({});
+                    }}
+                  />
                   주문자와 동일
                 </label>
               </div>
 
               <div className="grid md:grid-cols-2 gap-4">
-                <Input type="text" placeholder="수령인" />
-                <Input type="text" placeholder="우편번호" />
-                <Input type="text" placeholder="주소" />
-                <Input type="text" placeholder="상세 주소" />
+                <div>
+                  <Input
+                    type="text"
+                    placeholder="수령인"
+                    value={formData.reciever.name}
+                    disabled={isSameUser}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        reciever: {
+                          name: e.target.value,
+                          phone: prev.reciever.phone,
+                        },
+                      }))
+                    }
+                    className={errors.recieverName ? "border-alert-error" : ""}
+                  />
+                  {errors.recieverName && (
+                    <span className="text-alert-error text-sm">
+                      {errors.recieverName}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  {" "}
+                  <Input
+                    type="text"
+                    placeholder="전화번호"
+                    value={formData.reciever.phone}
+                    disabled={isSameUser}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        reciever: {
+                          name: prev.reciever.name,
+                          phone: e.target.value,
+                        },
+                      }))
+                    }
+                    className={errors.recieverPhone ? "border-alert-error" : ""}
+                  />
+                  {errors.recieverPhone && (
+                    <span className="text-alert-error text-sm">
+                      {errors.recieverPhone}
+                    </span>
+                  )}
+                </div>
+
+                <div>
+                  <Input
+                    type="text"
+                    readOnly
+                    placeholder="주소"
+                    value={formData.shippingAddress.address}
+                    disabled={isSameUser}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        shippingAddress: {
+                          address: e.target.value,
+                          detailAddress: prev.shippingAddress.detailAddress,
+                        },
+                      }))
+                    }
+                    className={errors.address ? "border-alert-error" : ""}
+                  />
+                  {errors.address && (
+                    <span className="text-alert-error text-sm">
+                      {errors.address}
+                    </span>
+                  )}
+                </div>
+                <div>
+                  <div className="flex gap-3">
+                    <Input
+                      type="text"
+                      placeholder="상세 주소"
+                      value={formData.shippingAddress.detailAddress}
+                      disabled={isSameUser}
+                      onChange={(e) =>
+                        setFormData((prev) => ({
+                          ...prev,
+                          shippingAddress: {
+                            address: prev.shippingAddress.address,
+                            detailAddress: e.target.value,
+                          },
+                        }))
+                      }
+                      className={
+                        errors.detailAddress
+                          ? "flex-1 border-alert-error"
+                          : "flex-1"
+                      }
+                    />
+                    <DaumPost disabled={isSameUser} setAddress={setFormData} />
+                  </div>
+                  {errors.detailAddress && (
+                    <span className="text-alert-error text-sm">
+                      {errors.detailAddress}
+                    </span>
+                  )}
+                </div>
               </div>
 
               <div className="mt-4">
@@ -93,6 +284,12 @@ function CheckoutPage() {
                   className="w-full rounded-xl border border-border focus:outline-none focus:ring-2 ring-ring p-3 resize-none"
                   rows={3}
                   placeholder="예) 부재 시 문 앞에 놓아주세요."
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      orderMemo: e.target.value,
+                    }))
+                  }
                 />
               </div>
             </section>
@@ -160,7 +357,13 @@ function CheckoutPage() {
                   />
                 </div>
 
-                <Button title="주문하기" className="w-full mt-6" />
+                <Button
+                  title="주문하기"
+                  className="w-full mt-6"
+                  onClick={() => {
+                    if (validateForm()) console.log(formData);
+                  }}
+                />
 
                 <p className="text-xs text-muted mt-3">
                   * 신선식품 특성상 단순 변심에 의한 반품은 어려울 수 있습니다.

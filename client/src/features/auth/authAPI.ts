@@ -9,6 +9,7 @@ export interface RegisterFormData {
   name: string;
   phone: string;
   address: string;
+  detailAddress: string;
 }
 
 // 회원가입 응답 타입
@@ -18,6 +19,7 @@ export interface UserResponse {
   name: string;
   phone: string;
   address: string;
+  detailAddress: string;
   role: string;
 }
 
