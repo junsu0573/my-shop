@@ -20,7 +20,15 @@ const orderSchema = new mongoose.Schema(
         },
       },
     ],
-    totalAmount: {
+    orderNum: {
+      type: String,
+      required: true,
+    },
+    reciever: {
+      type: Object, // { name, phone }
+      required: true,
+    },
+    totalPrice: {
       type: Number,
       required: true,
     },
@@ -30,7 +38,7 @@ const orderSchema = new mongoose.Schema(
       default: "pending",
     },
     shippingAddress: {
-      type: String,
+      type: Object, // { address, detailAddress }
       required: true,
     },
   },

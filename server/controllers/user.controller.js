@@ -6,7 +6,7 @@ const userController = {};
 // 회원가입
 userController.createUser = async (req, res) => {
   try {
-    const { email, password, name, phone, address } = req.body;
+    const { email, password, name, phone, address, detailAddress } = req.body;
 
     // 중복 확인
     const existingUser = await User.findOne({ email });
@@ -26,6 +26,7 @@ userController.createUser = async (req, res) => {
       name,
       phone,
       address,
+      detailAddress,
       role: "user",
     });
     return res.status(201).json({
