@@ -1,10 +1,9 @@
-const { model } = require("mongoose");
 const Cart = require("../models/Cart");
 
-const cartConroller = {};
+const cartController = {};
 
 // 장바구니 추가
-cartConroller.addToCart = async (req, res) => {
+cartController.addToCart = async (req, res) => {
   try {
     const { userId, productId, quantity } = req.body;
 
@@ -44,7 +43,7 @@ cartConroller.addToCart = async (req, res) => {
 };
 
 // 장바구니 조회
-cartConroller.getCart = async (req, res) => {
+cartController.getCart = async (req, res) => {
   try {
     const userId = req.params.id;
 
@@ -66,7 +65,7 @@ cartConroller.getCart = async (req, res) => {
 };
 
 // 장바구니 상품 수량 수정
-cartConroller.udpateItemQuantity = async (req, res) => {
+cartController.udpateItemQuantity = async (req, res) => {
   try {
     const userId = req.params.id;
     const productId = req.params.productId;
@@ -110,7 +109,7 @@ cartConroller.udpateItemQuantity = async (req, res) => {
 };
 
 // 장바구니 상품 삭제
-cartConroller.deleteItem = async (req, res) => {
+cartController.deleteItem = async (req, res) => {
   try {
     const userId = req.params.id;
     const productId = req.params.productId;
@@ -140,4 +139,4 @@ cartConroller.deleteItem = async (req, res) => {
   }
 };
 
-module.exports = cartConroller;
+module.exports = cartController;

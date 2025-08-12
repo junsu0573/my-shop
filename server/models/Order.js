@@ -43,7 +43,6 @@ const orderSchema = new mongoose.Schema(
     },
     orderMemo: {
       type: String,
-      required: true,
     },
   },
   { timestamps: true }
