@@ -5,6 +5,8 @@ import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 import { useState } from "react";
 import CartDrawer from "../features/cart/CartDrawer";
+import DropdownMenu from "../shared/ui/DropdownMenu";
+import ProfileMenu from "./ProfileMenu";
 
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -12,6 +14,7 @@ function Header() {
   const navigate = useNavigate();
   const [openCart, setOpenCart] = useState(false);
   const { data } = useSelector((state: RootState) => state.cart);
+  const [openProfile, setOpenProfile] = useState(false);
 
   return (
     <header className="bg-background border-b border-border sticky top-0 z-50">
@@ -62,7 +65,7 @@ function Header() {
               />
             )}
             {user ? (
-              <Button variant="ghost" title={user.name} />
+              <ProfileMenu />
             ) : (
               <Button
                 variant="ghost"

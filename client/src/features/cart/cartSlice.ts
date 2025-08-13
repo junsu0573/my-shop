@@ -25,6 +25,7 @@ const initialState: CartState = {
   error: null,
 };
 
+// 총액 계산
 const getTotalPrice = (state: CartState) => {
   const products = state.data?.cart?.products ?? [];
   const subtotal = products.reduce((sum, item) => {

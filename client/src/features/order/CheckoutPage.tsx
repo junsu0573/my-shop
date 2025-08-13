@@ -1,23 +1,39 @@
 import { ShieldCheck, Truck } from "lucide-react";
 import Input from "../../shared/ui/input";
-import { useSelector } from "react-redux";
-import type { RootState } from "../../app/store";
+import { useDispatch, useSelector } from "react-redux";
+import type { AppDispatch, RootState } from "../../app/store";
 import Button from "../../shared/ui/button";
 import { useEffect, useState } from "react";
 import DaumPost from "../../widgets/DaumPost";
+import { useNavigate } from "react-router-dom";
+import { createOrderThunk } from "./checkoutSlice";
+import type { OrderFormData, OrderProduct } from "./checkoutAPI";
+import { useToast } from "../../shared/ui/ToastContext";
+import type { CartLine } from "../cart/cartAPI";
 
 function CheckoutPage() {
+  const navigate = useNavigate();
+  const dispatch = useDispatch<AppDispatch>();
   const { data, totalPrice, shippingPrice } = useSelector(
     (state: RootState) => state.cart
   );
+  const { addToast } = useToast();
   const { user } = useSelector((state: RootState) => state.auth);
+  const { status } = useSelector((state: RootState) => state.order);
+  const isLoading = status === "loading";
   const [isSameUser, setIsSameUser] = useState(true);
-  const products = data?.cart?.products ?? [];
+  const [isAgreeTerm, setIsAgreeTerm] = useState(false);
+  const products: CartLine[] = data?.cart?.products ?? [];
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [creditForm, setCreditForm] = useState({
+    cardNum: "",
+    name: "",
+    mmdd: "",
+    cvc: "",
+  });
 
-  const [formData, setFormData] = useState<{ [key: string]: any }>({
-    userId: "",
-    products: [] as any[],
+  const [formData, setFormData] = useState<OrderFormData>({
+    products: [],
     reciever: {
       name: "",
       phone: "",
@@ -28,14 +44,19 @@ function CheckoutPage() {
       detailAddress: "",
     },
     orderMemo: "",
+    clearCart: true,
   });
 
   // formData 초기화
   useEffect(() => {
+    if (!user) navigate("/"); // 리다이렉트
     if (user && isSameUser) {
-      setFormData({
-        userId: user._id,
-        products: products,
+      setFormData((prev) => ({
+        ...prev,
+        products: products.map(({ productId, quantity }) => ({
+          productId: productId._id,
+          quantity,
+        })),
         reciever: {
           name: user.name,
           phone: user.phone,
@@ -45,7 +66,7 @@ function CheckoutPage() {
           address: user.address,
           detailAddress: user.detailAddress,
         },
-      });
+      }));
     }
     if (!isSameUser) {
       setFormData((prev) => ({
@@ -75,7 +96,44 @@ function CheckoutPage() {
     if (!formData.shippingAddress.detailAddress.trim())
       newErrors.detailAddress = "상세 주소를 입력해주세요.";
     setErrors(newErrors);
+    if (!creditForm.cardNum.trim())
+      newErrors.creditCardNum = "카드 번호를 입력해주세요.";
+    if (!creditForm.name.trim()) newErrors.creditName = "이름을 입력해주세요.";
+    if (!creditForm.mmdd.trim())
+      newErrors.creditMmdd = "유효일자를 입력해주세요.";
+    if (!creditForm.cvc.trim()) newErrors.creditCvc = "CVC를 입력해주세요.";
+    if (!isAgreeTerm) newErrors.term = "약관동의가 필요합니다.";
+
     return Object.keys(newErrors).length === 0;
+  };
+
+  // 주문하기 로직
+  const handleCheckout = async () => {
+    if (!validateForm()) return;
+
+    const res = await dispatch(createOrderThunk(formData));
+    if (createOrderThunk.fulfilled.match(res)) {
+      const orderNum = res.payload?.order?.orderNum;
+      addToast("주문이 완료되었습니다.", "success");
+      navigate("/checkout-success", {
+        state: { orderNum, fromCheckout: true }, // 접근 인증용
+        replace: true, // 뒤로 가기 방지
+      });
+    } else if (createOrderThunk.rejected.match(res)) {
+      const detail: OrderProduct[] = res.payload?.detail || [];
+
+      const shortage = products
+        .filter((p) =>
+          detail.some((item) => item.productId === p.productId._id)
+        )
+        .map((item) => `${item.productId.name}: ${item.productId.stock}개 남음`)
+        .join("\n");
+
+      addToast(
+        `${res.payload?.message} \n${shortage}` || `${res.payload}`,
+        "error"
+      );
+    }
   };
 
   return (
@@ -304,10 +362,10 @@ function CheckoutPage() {
                 <div className="grid md:grid-cols-5 sm:grid-cols-3 grid-cols-2 gap-3">
                   {[
                     ["card", "신용/체크카드"],
-                    ["bank", "무통장입금"],
-                    ["kakao", "카카오페이"],
-                    ["naver", "네이버페이"],
-                    ["tosspay", "토스페이"],
+                    // ["bank", "무통장입금"],
+                    // ["kakao", "카카오페이"],
+                    // ["naver", "네이버페이"],
+                    // ["tosspay", "토스페이"],
                   ].map(([key, label]) => (
                     <label
                       key={key}
@@ -316,20 +374,115 @@ function CheckoutPage() {
                       }
                     >
                       <div>
-                        <input type="radio" name="payment" />
+                        <input type="radio" name="payment" checked={true} />
                       </div>
 
                       {label}
                     </label>
                   ))}
                 </div>
+                <div className="mt-4 grid md:grid-cols-2 gap-2">
+                  <div>
+                    {" "}
+                    <Input
+                      type="text"
+                      placeholder="카드 번호"
+                      value={creditForm.cardNum}
+                      maxLength={16}
+                      onChange={(e) => {
+                        let val = e.target.value.replace(/\D/g, "");
+                        setCreditForm((prev) => ({ ...prev, cardNum: val }));
+                      }}
+                      className={
+                        errors.creditCardNum ? "border-alert-error" : ""
+                      }
+                    />
+                    {errors.creditCardNum && (
+                      <span className="text-alert-error text-sm">
+                        {errors.creditCardNum}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    {" "}
+                    <Input
+                      type="text"
+                      placeholder="이름"
+                      onChange={(e) =>
+                        setCreditForm((prev) => ({
+                          ...prev,
+                          name: e.target.value,
+                        }))
+                      }
+                      className={errors.creditName ? "border-alert-error" : ""}
+                    />
+                    {errors.creditName && (
+                      <span className="text-alert-error text-sm">
+                        {errors.creditName}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      type="text"
+                      placeholder="MM/DD"
+                      value={creditForm.mmdd}
+                      maxLength={5}
+                      onChange={(e) => {
+                        let val = e.target.value;
+                        val = val.replace(/\D/g, "");
+                        if (val.length >= 3) {
+                          val = val.slice(0, 2) + "/" + val.slice(2);
+                        }
+                        setCreditForm((prev) => ({ ...prev, mmdd: val }));
+                      }}
+                      className={errors.creditMmdd ? "border-alert-error" : ""}
+                    />
+                    {errors.creditMmdd && (
+                      <span className="text-alert-error text-sm">
+                        {errors.creditMmdd}
+                      </span>
+                    )}
+                  </div>
+                  <div>
+                    <Input
+                      type="text"
+                      placeholder="CVC"
+                      value={creditForm.cvc}
+                      maxLength={3}
+                      onChange={(e) => {
+                        let val = e.target.value;
+                        val = val.replace(/\D/g, "");
+                        setCreditForm((prev) => ({
+                          ...prev,
+                          cvc: val,
+                        }));
+                      }}
+                      className={errors.creditCvc ? "border-alert-error" : ""}
+                    />
+                    {errors.creditCvc && (
+                      <span className="text-alert-error text-sm">
+                        {errors.creditCvc}
+                      </span>
+                    )}
+                  </div>
+                </div>
               </div>
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" />
+                <input
+                  type="checkbox"
+                  checked={isAgreeTerm}
+                  onChange={() => setIsAgreeTerm((prev) => !prev)}
+                />
                 <span className="text-sm">
                   주문 상품, 결제정보, 개인정보 제3자 제공에 동의합니다.
                 </span>
+                {errors.term && (
+                  <span className="text-alert-error text-sm">
+                    {errors.term}
+                  </span>
+                )}
               </div>
             </section>
           </div>
@@ -360,9 +513,8 @@ function CheckoutPage() {
                 <Button
                   title="주문하기"
                   className="w-full mt-6"
-                  onClick={() => {
-                    if (validateForm()) console.log(formData);
-                  }}
+                  onClick={handleCheckout}
+                  disabled={isLoading}
                 />
 
                 <p className="text-xs text-muted mt-3">

@@ -9,6 +9,7 @@ import ProductManagement from "../features/product/ProductManagement";
 import AllProductPage from "../pages/AllProductPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import CheckoutPage from "../features/order/CheckoutPage";
+import CheckoutSuccessPage from "../pages/CheckoutSuccessPage";
 
 function AppRouter() {
   return (
@@ -17,6 +18,7 @@ function AppRouter() {
       <Route path="/products" element={<AllProductPage />} />
       <Route path="/products/:id" element={<ProductDetailPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
+      <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
       <Route
         path="/login"
         element={
