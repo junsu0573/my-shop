@@ -153,7 +153,12 @@ orderController.searchOrder = async (req, res) => {
 
     // 검색 조건: name 필드에서 부분일치
     const filter = search
-      ? { name: { $regex: search, $options: "i" } } // 대소문자 무시
+      ? {
+          orderNum: {
+            $regex: search,
+            $options: "i",
+          },
+        }
       : {};
 
     const [orders, total] = await Promise.all([
