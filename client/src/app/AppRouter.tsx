@@ -11,6 +11,7 @@ import ProductDetailPage from "../pages/ProductDetailPage";
 import CheckoutPage from "../features/order/CheckoutPage";
 import CheckoutSuccessPage from "../pages/CheckoutSuccessPage";
 import OrderHistoryPage from "../pages/OrderHistoryPage";
+import OrderManagement from "../features/order/OrderManagement";
 
 function AppRouter() {
   return (
@@ -47,7 +48,7 @@ function AppRouter() {
       >
         <Route path="users" />
         <Route path="products" element={<ProductManagement />} />
-        <Route path="orders" />
+        <Route path="orders" element={<OrderManagement />} />
         <Route />
       </Route>
     </Routes>

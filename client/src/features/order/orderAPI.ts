@@ -27,7 +27,7 @@ export interface OrderResponseData {
   orderMemo: string;
   orderNum: string;
   products: DetailOrderProduct[];
-  reciever: { name: string; phone: string };
+  receiver: { name: string; phone: string };
   shippingAddress: { address: string; detailAddress: string };
   status: string;
   totalPrice: Number;
@@ -42,7 +42,7 @@ export interface UserOderResponse {
   data: OrderResponseData[];
   total: number;
   page: number;
-  totalPage: number;
+  totalPages: number;
 }
 
 // 주문 생성
@@ -64,7 +64,7 @@ export const CreateOrder = async (
 export const getUserOrder = async ({ page = 1 }: { page?: number }) => {
   const token = localStorage.getItem("token");
 
-  const response = await axios.get(`${BASE_URL}/order`, {
+  const response = await axios.get(`${BASE_URL}/order/user`, {
     params: {
       page,
     },
@@ -73,5 +73,28 @@ export const getUserOrder = async ({ page = 1 }: { page?: number }) => {
     },
   });
 
+  return response.data;
+};
+
+// 전체 주문 검색
+export const searchOrders = async ({
+  name = "",
+  page = 1,
+}: {
+  name?: string;
+  page?: number;
+}) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.get(`${BASE_URL}/order`, {
+    params: {
+      name,
+      page,
+    },
+    headers: {
+      Authorization: token,
+    },
+  });
+  console.log(response.data);
   return response.data;
 };

@@ -125,7 +125,7 @@ export default function OrderHistoryPage() {
           {/* ▶ 페이지네이션 */}
           <div className="my-6">
             <ReactPaginate
-              pageCount={myOrders.totalPage}
+              pageCount={myOrders.totalPages}
               pageRangeDisplayed={3}
               marginPagesDisplayed={1}
               onPageChange={handlePageChange}
