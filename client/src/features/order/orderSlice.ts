@@ -75,13 +75,13 @@ const initialState: OrderState = {
     data: [],
     total: 0,
     page: 1,
-    totalPage: 1,
+    totalPages: 1,
   },
   orderList: {
     data: [],
     total: 0,
     page: 1,
-    totalPage: 1,
+    totalPages: 1,
   },
 };
 
