@@ -1,6 +1,6 @@
 import { useDaumPostcodePopup } from "react-daum-postcode";
 import Button from "../shared/ui/button";
-import type { OrderFormData } from "../features/order/checkoutAPI";
+import type { OrderFormData } from "../features/order/orderAPI";
 
 type DaumPostProps = {
   disabled: boolean;

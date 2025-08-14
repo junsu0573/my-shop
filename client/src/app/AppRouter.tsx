@@ -10,6 +10,7 @@ import AllProductPage from "../pages/AllProductPage";
 import ProductDetailPage from "../pages/ProductDetailPage";
 import CheckoutPage from "../features/order/CheckoutPage";
 import CheckoutSuccessPage from "../pages/CheckoutSuccessPage";
+import OrderHistoryPage from "../pages/OrderHistoryPage";
 
 function AppRouter() {
   return (
@@ -19,6 +20,7 @@ function AppRouter() {
       <Route path="/products/:id" element={<ProductDetailPage />} />
       <Route path="/checkout" element={<CheckoutPage />} />
       <Route path="/checkout-success" element={<CheckoutSuccessPage />} />
+      <Route path="/user-order" element={<OrderHistoryPage />} />
       <Route
         path="/login"
         element={

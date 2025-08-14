@@ -6,8 +6,8 @@ import Button from "../../shared/ui/button";
 import { useEffect, useState } from "react";
 import DaumPost from "../../widgets/DaumPost";
 import { useNavigate } from "react-router-dom";
-import { createOrderThunk } from "./checkoutSlice";
-import type { OrderFormData, OrderProduct } from "./checkoutAPI";
+import { createOrderThunk } from "./orderSlice";
+import type { OrderFormData, OrderProduct } from "./orderAPI";
 import { useToast } from "../../shared/ui/ToastContext";
 import type { CartLine } from "../cart/cartAPI";
 

@@ -6,6 +6,7 @@ const { generateOrderNum } = require("../utils/generator");
 
 const orderController = {};
 
+// 주문 생성
 orderController.createOrder = async (req, res) => {
   // 세션 등록
   const session = await mongoose.startSession();
@@ -102,6 +103,42 @@ orderController.createOrder = async (req, res) => {
       message: "서버 오류입니다.",
       error: error.message,
       detail: error.detail,
+    });
+  }
+};
+
+// 유저 주문 가져오기
+orderController.getUserOrders = async (req, res) => {
+  try {
+    userId = req.user._id;
+    const page = parseInt(req.query.page) || 1;
+    const limit = 10;
+    const skip = (page - 1) * limit;
+
+    const [orders, total] = await Promise.all([
+      Order.find({ userId })
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({
+          path: "products.productId",
+        })
+        .lean(),
+      Order.countDocuments({ userId }),
+    ]);
+
+    return res.status(200).json({
+      status: "success",
+      data: orders,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "서버 오류입니다.",
+      error: error.message,
     });
   }
 };
