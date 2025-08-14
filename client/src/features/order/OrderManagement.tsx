@@ -1,12 +1,12 @@
-import { useEffect, useMemo, useState } from "react";
-import { Eye, Trash2, Search, RotateCcw, ChevronDown } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Eye, Search, ChevronDown } from "lucide-react";
 import Button from "../../shared/ui/button";
 import Input from "../../shared/ui/input";
 import ReactPaginate from "react-paginate";
 import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useSearchParams } from "react-router-dom";
-import { useToast } from "../../shared/ui/ToastContext";
+
 import { searchOrdersThunk } from "./orderSlice";
 import type { DetailOrderProduct } from "./orderAPI";
 
@@ -23,7 +23,7 @@ const getFirstProductSummary = (products: DetailOrderProduct[]) => {
 
 function OrderManagement() {
   const dispatch = useDispatch<AppDispatch>();
-  const { addToast } = useToast();
+  // const { addToast } = useToast();
 
   // URL 쿼리 파라미터
   const [searchParams, setSearchParams] = useSearchParams();
