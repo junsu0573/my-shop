@@ -143,4 +143,44 @@ orderController.getUserOrders = async (req, res) => {
   }
 };
 
+// 주문 검색
+orderController.searchOrder = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = 3;
+    const skip = (page - 1) * limit;
+    const search = req.query.name || "";
+
+    // 검색 조건: name 필드에서 부분일치
+    const filter = search
+      ? { name: { $regex: search, $options: "i" } } // 대소문자 무시
+      : {};
+
+    const [orders, total] = await Promise.all([
+      Order.find(filter)
+        .sort({ createdAt: -1 })
+        .skip(skip)
+        .limit(limit)
+        .populate({ path: "products.productId" })
+        .populate({ path: "userId" })
+        .lean(),
+      Order.countDocuments(filter),
+    ]);
+
+    res.status(200).json({
+      status: "success",
+      data: orders,
+      total,
+      page,
+      totalPages: Math.ceil(total / limit),
+    });
+  } catch (error) {
+    res.status(500).json({
+      status: "error",
+      message: "서버 오류입니다.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = orderController;

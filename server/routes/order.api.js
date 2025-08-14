@@ -7,6 +7,14 @@ const orderController = require("../controllers/order.controller");
 router.post("/", authMiddleware.verifyToken, orderController.createOrder);
 
 // 유저 주문 가져오기
-router.get("/", authMiddleware.verifyToken, orderController.getUserOrders);
+router.get("/user", authMiddleware.verifyToken, orderController.getUserOrders);
+
+// 주문 검색
+router.get(
+  "/",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  orderController.searchOrder
+);
 
 module.exports = router;
