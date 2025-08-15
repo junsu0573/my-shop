@@ -17,4 +17,12 @@ router.get(
   orderController.searchOrder
 );
 
+// 주문 수정
+router.put(
+  "/:orderNum",
+  authMiddleware.verifyToken,
+  authMiddleware.verifyAdmin,
+  orderController.updateOrder
+);
+
 module.exports = router;

@@ -188,4 +188,51 @@ orderController.searchOrder = async (req, res) => {
   }
 };
 
+// 주문 수정
+orderController.updateOrder = async (req, res) => {
+  try {
+    const { orderNum } = req.params;
+
+    const { reciever, shippingAddress, orderMemo, status } = req.body;
+
+    // 허용된 필드만 업데이트 객체에 추가
+    const updates = {};
+    if (reciever && typeof reciever === "object") updates.reciever = reciever;
+    if (shippingAddress && typeof shippingAddress === "object")
+      updates.shippingAddress = shippingAddress;
+    if (typeof orderMemo === "string") updates.orderMemo = orderMemo;
+    if (typeof status === "string") updates.status = status;
+
+    if (Object.keys(updates).length === 0) {
+      return res
+        .status(400)
+        .json({ status: "error", message: "수정할 필드가 없습니다." });
+    }
+
+    // orderNum 기준으로 업데이트
+    const updated = await Order.findOneAndUpdate(
+      { orderNum },
+      { $set: updates },
+      { new: true, runValidators: true }
+    )
+      .populate({ path: "products.productId" })
+      .populate({ path: "userId" })
+      .lean();
+
+    if (!updated) {
+      return res
+        .status(404)
+        .json({ status: "error", message: "주문을 찾을 수 없습니다." });
+    }
+
+    return res.status(200).json({ status: "success", data: updated });
+  } catch (error) {
+    return res.status(500).json({
+      status: "error",
+      message: "서버 오류입니다.",
+      error: error.message,
+    });
+  }
+};
+
 module.exports = orderController;
