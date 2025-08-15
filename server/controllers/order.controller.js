@@ -214,10 +214,7 @@ orderController.updateOrder = async (req, res) => {
       { orderNum },
       { $set: updates },
       { new: true, runValidators: true }
-    )
-      .populate({ path: "products.productId" })
-      .populate({ path: "userId" })
-      .lean();
+    );
 
     if (!updated) {
       return res
@@ -225,7 +222,12 @@ orderController.updateOrder = async (req, res) => {
         .json({ status: "error", message: "주문을 찾을 수 없습니다." });
     }
 
-    return res.status(200).json({ status: "success", data: updated });
+    return res
+      .status(200)
+      .json({
+        status: "success",
+        message: "주문이 성공적으로 수정되었습니다.",
+      });
   } catch (error) {
     return res.status(500).json({
       status: "error",
