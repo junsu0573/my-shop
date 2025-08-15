@@ -3,8 +3,10 @@ import {
   CreateOrder,
   getUserOrder,
   searchOrders,
+  updateOrder,
   type OrderFormData,
   type OrderResponse,
+  type OrderUpdateForm,
   type UserOderResponse,
 } from "./orderAPI";
 
@@ -51,6 +53,23 @@ export const searchOrdersThunk = createAsyncThunk<
 >("order/get", async ({ name, page }, { rejectWithValue }) => {
   try {
     const response = await searchOrders({ name, page });
+    return response;
+  } catch (error: any) {
+    return rejectWithValue({
+      status: "failed",
+      message: error.response?.data?.error || "예기치 않은 오류 발생",
+    });
+  }
+});
+
+// 주문 수정
+export const updateOrderThunk = createAsyncThunk<
+  { status: string; message: string }, // 반환 타입
+  { orderNum: string; formData: OrderUpdateForm }, // payload 타입
+  { rejectValue: { status: string; message: string } } // 에러 타입
+>("order/update", async ({ orderNum, formData }, { rejectWithValue }) => {
+  try {
+    const response = await updateOrder({ orderNum, formData });
     return response;
   } catch (error: any) {
     return rejectWithValue({
@@ -129,6 +148,19 @@ const orderSlice = createSlice({
         state.error = null;
       })
       .addCase(searchOrdersThunk.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 주문 수정
+      .addCase(updateOrderThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(updateOrderThunk.fulfilled, (state) => {
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(updateOrderThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       });

@@ -27,9 +27,9 @@ export interface OrderResponseData {
   orderMemo: string;
   orderNum: string;
   products: DetailOrderProduct[];
-  receiver: { name: string; phone: string };
+  reciever: { name: string; phone: string };
   shippingAddress: { address: string; detailAddress: string };
-  status: string;
+  status: OrderStatus;
   totalPrice: Number;
 }
 
@@ -44,6 +44,36 @@ export interface UserOderResponse {
   page: number;
   totalPages: number;
 }
+
+export interface OrderUpdateForm {
+  reciever: { name: string; phone: string };
+  shippingAddress: { address: string; detailAddress: string };
+  orderMemo: string;
+  status: string;
+}
+
+export const statusLabel: Record<OrderStatus, string> = {
+  pending: "주문접수",
+  confirmed: "출고중",
+  shipped: "배송중",
+  delivered: "배송완료",
+  cancelled: "취소",
+};
+
+export const statusBadgeClass: Record<OrderStatus, string> = {
+  pending: "bg-amber-100 text-amber-700 border border-amber-200",
+  confirmed: "bg-blue-100 text-blue-700 border border-blue-200",
+  shipped: "bg-indigo-100 text-indigo-700 border border-indigo-200",
+  delivered: "bg-emerald-100 text-emerald-700 border border-emerald-200",
+  cancelled: "bg-rose-100 text-rose-700 border border-rose-200",
+};
+
+export type OrderStatus =
+  | "pending"
+  | "confirmed"
+  | "shipped"
+  | "delivered"
+  | "cancelled";
 
 // 주문 생성
 export const CreateOrder = async (
@@ -95,6 +125,25 @@ export const searchOrders = async ({
       Authorization: token,
     },
   });
-  console.log(response.data);
+
+  return response.data;
+};
+
+// 주문 수정
+export const updateOrder = async ({
+  orderNum,
+  formData,
+}: {
+  orderNum: string;
+  formData: OrderUpdateForm;
+}) => {
+  const token = localStorage.getItem("token");
+
+  const response = await axios.put(`${BASE_URL}/order/${orderNum}`, formData, {
+    headers: {
+      Authorization: token,
+    },
+  });
+
   return response.data;
 };

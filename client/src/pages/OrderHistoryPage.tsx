@@ -6,6 +6,7 @@ import { useSearchParams } from "react-router-dom";
 import { getUserOrderThunk } from "../features/order/orderSlice";
 import ReactPaginate from "react-paginate";
 import Header from "../widgets/Header";
+import ShippingStatus from "../shared/ui/shippingStatus";
 
 export default function OrderHistoryPage() {
   const dispatch = useDispatch<AppDispatch>();
@@ -13,19 +14,6 @@ export default function OrderHistoryPage() {
   // 주문 데이터
   const { myOrders, status } = useSelector((state: RootState) => state.order);
   const orders = myOrders?.data || [];
-  type ShipStatus =
-    | "pending"
-    | "confirmed"
-    | "shipped"
-    | "delivered"
-    | "cancelled";
-  const shipStatus: Record<ShipStatus, string> = {
-    pending: "주문접수",
-    confirmed: "결제완료",
-    shipped: "배송중",
-    delivered: "배송완료",
-    cancelled: "취소됨",
-  };
 
   // URL 쿼리 파라미터
   const [searchParams, setSearchParams] = useSearchParams();
@@ -72,14 +60,8 @@ export default function OrderHistoryPage() {
                       <p className="text-sm text-muted">
                         주문일: {new Date(order.createdAt).toLocaleString()}
                       </p>
-                      <p className="text-sm">
-                        배송 상태:{" "}
-                        <span className="font-medium">
-                          {shipStatus[
-                            order.status as keyof typeof shipStatus
-                          ] ?? ""}
-                        </span>
-                      </p>
+
+                      <ShippingStatus status={order.status} />
                     </div>
                     <div className="text-right">
                       <p className="font-bold">

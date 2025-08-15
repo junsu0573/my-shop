@@ -7,8 +7,16 @@ import { useDispatch, useSelector } from "react-redux";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useSearchParams } from "react-router-dom";
 
-import { searchOrdersThunk } from "./orderSlice";
-import type { DetailOrderProduct } from "./orderAPI";
+import { searchOrdersThunk, updateOrderThunk } from "./orderSlice";
+import {
+  statusLabel,
+  type DetailOrderProduct,
+  type OrderResponseData,
+  type OrderStatus,
+} from "./orderAPI";
+import OrderDetailModal from "./OrderDetailModal";
+import { useToast } from "../../shared/ui/ToastContext";
+import ShippingStatus from "../../shared/ui/shippingStatus";
 
 const getFirstProductSummary = (products: DetailOrderProduct[]) => {
   if (!products?.length) return "-";
@@ -23,7 +31,11 @@ const getFirstProductSummary = (products: DetailOrderProduct[]) => {
 
 function OrderManagement() {
   const dispatch = useDispatch<AppDispatch>();
-  // const { addToast } = useToast();
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+  const [selectedOrder, setSelectedOrder] = useState<OrderResponseData | null>(
+    null
+  );
+  const { addToast } = useToast();
 
   // URL 쿼리 파라미터
   const [searchParams, setSearchParams] = useSearchParams();
@@ -59,12 +71,34 @@ function OrderManagement() {
     });
   };
 
+  // 배송상태 변경 핸들러
+  const handleChangeStatus = async (
+    order: OrderResponseData,
+    status: OrderStatus
+  ) => {
+    const { orderNum, reciever, shippingAddress, orderMemo } = order;
+    const formData = { reciever, shippingAddress, orderMemo, status };
+
+    const res = await dispatch(updateOrderThunk({ orderNum, formData }));
+    if (updateOrderThunk.fulfilled.match(res)) {
+      dispatch(searchOrdersThunk({ name, page }));
+      addToast(res.payload.message, "success");
+    } else if (updateOrderThunk.rejected.match(res)) {
+      addToast(res.payload?.message || "에러가 발생했습니다.", "error");
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
         <h1>주문 관리</h1>
       </div>
-
+      {isDetailModalOpen && selectedOrder ? (
+        <OrderDetailModal
+          order={selectedOrder}
+          onClose={() => setIsDetailModalOpen(false)}
+        />
+      ) : null}
       {/* 검색 필터 */}
       <div className="mb-4">
         <form onSubmit={handleSearchSubmit} className="flex">
@@ -105,9 +139,9 @@ function OrderManagement() {
                   <td className="px-4 py-2">{order.orderNum}</td>
                   <td className="px-4 py-2">
                     <div className="flex flex-col">
-                      <span>{order.receiver?.name}</span>
+                      <span>{order.reciever.name}</span>
                       <span className="text-xs text-muted-foreground">
-                        {order.receiver?.phone}
+                        {order.reciever?.phone}
                       </span>
                     </div>
                   </td>
@@ -116,9 +150,7 @@ function OrderManagement() {
                   </td>
                   <td className="px-4 py-2">{`₩${order.totalPrice.toLocaleString()}`}</td>
                   <td className="px-4 py-2">
-                    <span className={`px-2 py-1 rounded text-xs`}>
-                      {order.status}
-                    </span>
+                    <ShippingStatus status={order.status} />
                   </td>
                   <td className="px-4 py-2">
                     {new Date(order.createdAt).toLocaleString()}
@@ -129,7 +161,10 @@ function OrderManagement() {
                       variant="ghost"
                       title="상세"
                       icon={<Eye size={16} />}
-                      onClick={() => {}}
+                      onClick={() => {
+                        setSelectedOrder(order);
+                        setIsDetailModalOpen(true);
+                      }}
                     />
                     {/* 상태 변경 드롭다운(간단버전) */}
                     <div className="relative group">
@@ -138,21 +173,27 @@ function OrderManagement() {
                         title="상태변경"
                         icon={<ChevronDown size={16} />}
                       />
-                      <div className="hidden group-hover:block absolute z-10 mt-2 w-28 bg-white border rounded shadow">
-                        {[
-                          "pending",
-                          "confirmed",
-                          "shipped",
-                          "delivered",
-                          "cancelled",
-                        ].map((st) => (
+                      <div
+                        className="hidden group-hover:block absolute z-10 top-full left-0 w-32 bg-white border border-border rounded shadow"
+                        style={{ marginTop: "-1px" }} // 버튼과 메뉴 사이 간격 제거
+                      >
+                        {(
+                          [
+                            "pending",
+                            "confirmed",
+                            "shipped",
+                            "delivered",
+                            "cancelled",
+                          ] as OrderStatus[]
+                        ).map((st) => (
                           <button
                             key={st}
-                            value={st}
-                            className="w-full text-left px-3 py-2 hover:bg-gray-50"
-                            onClick={() => {}}
+                            className={`w-full text-left px-3 py-2 hover:bg-gray-50 text-sm ${
+                              order.status === st ? "bg-gray-50" : ""
+                            }`}
+                            onClick={() => handleChangeStatus(order, st)}
                           >
-                            {"상태"}
+                            {statusLabel[st]}
                           </button>
                         ))}
                       </div>
