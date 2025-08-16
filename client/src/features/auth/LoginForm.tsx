@@ -3,9 +3,10 @@ import Button from "../../shared/ui/button";
 import Input from "../../shared/ui/input";
 import { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { login, resetAuth } from "./authSlice";
+import { googleLoginThunk, login, resetAuth } from "./authSlice";
 import type { AppDispatch, RootState } from "../../app/store";
 import { useToast } from "../../shared/ui/ToastContext";
+import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 
 function LoginForm() {
   const dispatch = useDispatch<AppDispatch>();
@@ -56,6 +57,12 @@ function LoginForm() {
     dispatch(login(formData));
   };
 
+  // 구글 로그인 핸들러
+  const handleGoogleLogin = (credentialResponse: CredentialResponse) => {
+    const googleToken = credentialResponse.credential as string;
+    if (googleToken) dispatch(googleLoginThunk(googleToken));
+  };
+
   // input 필드
   const renderInput = (name: string, type: string, placeholder: string) => (
     <div>
@@ -87,6 +94,17 @@ function LoginForm() {
         />
       </form>
       {error && <span className="text-alert-error text-sm mt-2">{error}</span>}
+      <div className="mt-2">
+        <GoogleLogin
+          onSuccess={(credentialResponse) => {
+            handleGoogleLogin(credentialResponse);
+          }}
+          onError={() => {
+            addToast("로그인에 실패하였습니다.", "error");
+          }}
+        />
+      </div>
+
       <Link to="/register" className="mt-4 text-primary hover:underline">
         계정이 없으신가요? 회원가입
       </Link>

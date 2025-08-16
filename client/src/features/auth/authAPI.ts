@@ -62,3 +62,13 @@ export const fetchUser = async (): Promise<UserResponse> => {
   });
   return response.data.user;
 };
+
+// 구글 로그인
+export const googleLogin = async (
+  googleToken: string
+): Promise<LoginResponse> => {
+  const response = await axios.post(`${BASE_URL}/auth/google`, {
+    gToken: googleToken,
+  });
+  return response.data;
+};

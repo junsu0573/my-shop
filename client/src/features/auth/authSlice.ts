@@ -1,5 +1,5 @@
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
-import { loginUser, registerUser, fetchUser } from "./authAPI";
+import { loginUser, registerUser, fetchUser, googleLogin } from "./authAPI";
 import type {
   LoginFormData,
   LoginResponse,
@@ -73,6 +73,28 @@ export const fetchCurrentUser = createAsyncThunk<
   }
 });
 
+// 구글 로그인 Thunk
+export const googleLoginThunk = createAsyncThunk<
+  LoginResponse, // 반환 타입
+  string, // payload 타입
+  { rejectValue: { status: string; message: string } } // 에러 타입
+>("auth/google", async (googleToken, { rejectWithValue }) => {
+  try {
+    const response = await googleLogin(googleToken);
+    // 토큰을 로컬 스토리지에 저장
+    localStorage.setItem("token", `Bearer ${response.token}`);
+    return response;
+  } catch (error: any) {
+    return rejectWithValue({
+      status: "failed",
+      message:
+        error.response?.data?.error ||
+        error.response?.data?.message ||
+        "예기치 않은 오류 발생",
+    });
+  }
+});
+
 // Auth Slice
 const authSlice = createSlice({
   name: "auth",
@@ -115,6 +137,20 @@ const authSlice = createSlice({
         state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
+        state.status = "failed";
+        state.error = action.payload?.message ?? "예기치 않은 오류 발생";
+      })
+      // 구글 로그인
+      .addCase(googleLoginThunk.pending, (state) => {
+        state.status = "loading";
+        state.error = null;
+      })
+      .addCase(googleLoginThunk.fulfilled, (state, action) => {
+        state.user = action.payload.user;
+        state.status = "succeeded";
+        state.error = null;
+      })
+      .addCase(googleLoginThunk.rejected, (state, action) => {
         state.status = "failed";
         state.error = action.payload?.message ?? "예기치 않은 오류 발생";
       })
