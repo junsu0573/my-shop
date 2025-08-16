@@ -61,11 +61,10 @@ authController.googleLogin = async (req, res) => {
     const { gToken } = req.body;
 
     // 토큰 검증
-    const ticket = client.verifyIdToken({
+    const payload = client.verifyIdToken({
       gToken,
       audience: process.env.GOOGLE_CLIENT_ID,
     });
-    const payload = ticket.getPayload();
     const { email, name } = payload;
 
     if (!email) {
