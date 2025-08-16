@@ -7,5 +7,7 @@ const authController = require("../controllers/auth.controller");
 router.post("/login", authController.loginUser);
 // 토큰 검증
 router.get("/me", authMiddleware.verifyToken, authController.getCurrentUser);
+// 구글 로그인
+router.post("/google", authController.googleLogin);
 
 module.exports = router;
