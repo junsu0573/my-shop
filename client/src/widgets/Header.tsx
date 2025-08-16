@@ -1,11 +1,12 @@
 import { Link, useNavigate } from "react-router-dom";
 import Button from "../shared/ui/button";
-import { User, ShoppingCart, Menu } from "lucide-react";
+import { User, ShoppingCart } from "lucide-react";
 import { useSelector } from "react-redux";
 import type { RootState } from "../app/store";
 import { useState } from "react";
 import CartDrawer from "../features/cart/CartDrawer";
 import ProfileMenu from "./ProfileMenu";
+import HamburgerMenu from "./HamburgerMenu";
 
 function Header() {
   const user = useSelector((state: RootState) => state.auth.user);
@@ -38,20 +39,7 @@ function Header() {
             >
               전체상품
             </Link>
-            <Link
-              to="/"
-              className="text-foreground hover:text-primary transition-colors"
-            >
-              선물세트
-            </Link>
           </nav>
-
-          {/* 검색바 */}
-          {/* <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Input />
-            </div>
-          </div> */}
 
           {/* 우측 메뉴 */}
           <div className="flex items-center space-x-0 sm:space-x-2">
@@ -90,7 +78,7 @@ function Header() {
             )}
 
             <div className="md:hidden">
-              <Button variant="ghost" icon={<Menu size={16} />} />
+              <HamburgerMenu />
             </div>
           </div>
         </div>

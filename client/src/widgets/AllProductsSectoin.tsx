@@ -1,13 +1,14 @@
 import { Link } from "react-router-dom";
 import Button from "../shared/ui/button";
-import { useCallback, useEffect, useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { AppDispatch, RootState } from "../app/store";
-import { getProductList } from "../features/product/productSlice";
-import type { Product } from "../features/product/productAPI";
 import ProductCard from "./ProductCard";
+import { useDispatch, useSelector } from "react-redux";
+import { useCallback, useEffect, useState } from "react";
 
-function PopularProductsSection() {
+import type { AppDispatch, RootState } from "../app/store";
+import type { Product } from "../features/product/productAPI";
+import { getProductList } from "../features/product/productSlice";
+
+function AllProductsSection() {
   const dispatch = useDispatch<AppDispatch>();
   const [products, setProducts] = useState<Product[]>([]);
   const { status } = useSelector((state: RootState) => state.product);
@@ -15,7 +16,7 @@ function PopularProductsSection() {
   // 프로덕트 데이터 fetch
   const fetchProducts = useCallback(async () => {
     const res = await dispatch(
-      getProductList({ name: "", page: 1, rating: true })
+      getProductList({ name: "", page: 1, rating: false })
     );
     if (getProductList.fulfilled.match(res)) {
       const loadedProducts = res.payload?.data || [];
@@ -28,13 +29,11 @@ function PopularProductsSection() {
   }, [fetchProducts]);
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-16 bg-gradient-to-r from-slate-50 to-gray-100">
       <div className="max-w-7xl mx-auto px-4 xl:px-0">
         <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-primary mb-4">인기 상품</h2>
-          <p className="text-lg text-muted">
-            고객들이 가장 많이 선택한 한우입니다
-          </p>
+          <h2 className="text-3xl font-bold text-primary mb-4">최신 상품</h2>
+          <p className="text-lg text-muted">최고 품질의 한우만을 취급합니다.</p>
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
@@ -66,4 +65,4 @@ function PopularProductsSection() {
   );
 }
 
-export default PopularProductsSection;
+export default AllProductsSection;

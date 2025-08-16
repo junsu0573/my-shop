@@ -51,6 +51,7 @@ export interface ProductListResponse {
 export interface ProductQuery {
   name?: string;
   page?: number;
+  rating?: boolean;
 }
 
 // Product -> ProductFormData 변환
@@ -87,11 +88,16 @@ export const createProduct = async (
 };
 
 // 프로덕트 검색
-export const searchProduct = async ({ name = "", page = 1 }: ProductQuery) => {
+export const searchProduct = async ({
+  name = "",
+  page = 1,
+  rating = false,
+}: ProductQuery) => {
   const response = await axios.get(`${BASE_URL}/product`, {
     params: {
       name,
       page,
+      rating,
     },
   });
   return response.data;

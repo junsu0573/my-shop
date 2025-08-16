@@ -48,14 +48,17 @@ productController.searchProduct = async (req, res) => {
     const limit = 10;
     const skip = (page - 1) * limit;
     const search = req.query.name || "";
+    const isRating = req.query.rating === "true";
 
     // 검색 조건: name 필드에서 부분일치
     const filter = search
       ? { name: { $regex: search, $options: "i" } } // 대소문자 무시
       : {};
 
+    const sortOption = isRating ? { rating: -1 } : { createdAt: -1 };
+
     const [products, total] = await Promise.all([
-      Product.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit),
+      Product.find(filter).sort(sortOption).skip(skip).limit(limit),
       Product.countDocuments(filter),
     ]);
 

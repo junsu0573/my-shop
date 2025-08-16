@@ -15,7 +15,7 @@ function AllProductPage() {
     (state: RootState) => state.product
   );
   const totalPages = productsData?.totalPages || 1;
-
+  const [sortOption, setSortOption] = useState("default");
   const isLoading = status === "loading";
 
   // URl 쿼리 파라미터
@@ -28,12 +28,13 @@ function AllProductPage() {
 
   // 프로덕트 데이터 fetch
   const fetchProducts = useCallback(async () => {
-    const res = await dispatch(getProductList({ name: name, page }));
+    const rating = sortOption === "rating";
+    const res = await dispatch(getProductList({ name: name, page, rating }));
     if (getProductList.fulfilled.match(res)) {
       const loadedProducts = res.payload?.data || [];
       setProducts((prev) => [...prev, ...loadedProducts]);
     } else console.log("불러오기 실패");
-  }, [dispatch, name, page]);
+  }, [dispatch, name, page, sortOption]);
 
   useEffect(() => {
     fetchProducts();
@@ -116,7 +117,21 @@ function AllProductPage() {
           </div>
         </section>
         <div className="max-w-7xl mx-auto px-4 py-8">
-          <h2 className="text-2xl font-bold mb-6">전체 상품</h2>
+          <div className="flex justify-between items-center">
+            <h2 className="text-2xl font-bold mb-6">전체 상품</h2>
+            <select
+              className="border border-border rounded-lg px-2 py-1"
+              value={sortOption}
+              onChange={(e: React.ChangeEvent<HTMLSelectElement>) => {
+                setProducts([]);
+                setSortOption(e.target.value);
+              }}
+            >
+              <option value="default">기본순</option>
+              <option value="rating">인기순</option>
+            </select>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {products.length > 0 ? (
               products.map((item, idx) => {
